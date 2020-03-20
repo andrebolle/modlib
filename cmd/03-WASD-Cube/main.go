@@ -66,30 +66,39 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// Configure the vertex data
+	// Get a Vertex Array
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
 	gl.BindVertexArray(vao)
 
+	// ARRAY_BUFFER[vbo] = size in total, pointer to data, usage (DRAW)
 	var vbo uint32
 	gl.GenBuffers(1, &vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(utils.CubeVertices)*4, gl.Ptr(utils.CubeVertices), gl.STATIC_DRAW)
 
-	vertAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vert\x00")))
-	gl.EnableVertexAttribArray(vertAttrib)
-	gl.VertexAttribPointer(vertAttrib, 3, gl.FLOAT, false, 5*4, gl.PtrOffset(0))
+	// Located where in the shader?
+	vertexLocation := uint32(gl.GetAttribLocation(program, gl.Str("vert\x00")))
 
-	texCoordAttrib := uint32(gl.GetAttribLocation(program, gl.Str("vertTexCoord\x00")))
-	gl.EnableVertexAttribArray(texCoordAttrib)
-	gl.VertexAttribPointer(texCoordAttrib, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
+	// This vertex is: 3 floats, not normalised, stride, offset by 0
+	// X, Y, Z, U, V: stride = 20 (5 values * 4 bytes per value)
+	stride := int32(20)
+	gl.VertexAttribPointer(vertexLocation, 3, gl.FLOAT, false, stride, gl.PtrOffset(0))
+	gl.EnableVertexAttribArray(vertexLocation)
+
+	// This texture is: 2 floats, not normalised, stride, offset by 12
+	// X, Y, Z, U, V: stride = 20 (5 values * 4 bytes per value)
+	textureLocation := uint32(gl.GetAttribLocation(program, gl.Str("vertTexCoord\x00")))
+	gl.EnableVertexAttribArray(textureLocation)
+	gl.VertexAttribPointer(textureLocation, 2, gl.FLOAT, false, stride, gl.PtrOffset(12))
 
 	// Use depth test (or not if you want it to look weird)
-	//gl.Enable(gl.DEPTH_TEST)
-	//gl.DepthFunc(gl.LESS)
+	gl.Enable(gl.DEPTH_TEST)
+	gl.DepthFunc(gl.LESS)
 
 	// Set clear colour
-	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
+	grey := float32(0.3)
+	gl.ClearColor(grey, grey, grey, 1.0)
 
 	angle := 0.0
 	previousTime := glfw.GetTime()
