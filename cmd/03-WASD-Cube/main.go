@@ -23,8 +23,17 @@ func init() {
 
 func main() {
 
+	// Get the camera
 	cam := utils.CreateCam()
-	window := utils.CreateWindow("WASD Cube", 600, 600)
+
+	// Set the width of the window in pixels
+	var width float32 = 600
+
+	// Find the height required so there is no distortion
+	height := int(width / cam.Aspect)
+
+	// Create the window
+	window := utils.CreateWindow("WASD Cube", int(width), int(height))
 	version := gl.GoStr(gl.GetString(gl.VERSION))
 	fmt.Println("OpenGL version", version)
 
@@ -32,23 +41,22 @@ func main() {
 	program, _ := utils.CreateVF(VertexShader, FragmentShader)
 	gl.UseProgram(program)
 
-	// Projection
+	// Bind Projection
 	projection := mgl32.Perspective(cam.Fovy, cam.Aspect, cam.Near, cam.Far)
 	projectionUniform := gl.GetUniformLocation(program, gl.Str("P\x00"))
 	gl.UniformMatrix4fv(projectionUniform, 1, false, &projection[0])
 
-	// View
+	// Bind View
 	view := mgl32.LookAtV(cam.Position, cam.LookAt, cam.Up)
 	cameraUniform := gl.GetUniformLocation(program, gl.Str("V\x00"))
 	gl.UniformMatrix4fv(cameraUniform, 1, false, &view[0])
 
-	// Model
-	//model := mgl32.Ident4()
+	// Bind Model - its set in the render loop anyway
 	var model mgl32.Mat4
 	modelUniform := gl.GetUniformLocation(program, gl.Str("M\x00"))
 	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
 
-	// Texture
+	// Bind Texture
 	textureUniform := gl.GetUniformLocation(program, gl.Str("tex\x00"))
 	gl.Uniform1i(textureUniform, 0)
 
