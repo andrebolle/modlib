@@ -11,6 +11,12 @@ type L struct {
 	rules map[rune]string
 }
 
+//KochIsland KochIsland
+var KochIsland = L{seed: "F-F-F-F", rules: map[rune]string{'F': "F-F+F+FF-F-F+F", '-': "-", '+': "+"}}
+
+//KochCurve KochCurve
+var KochCurve = L{seed: "F-F-F-F", rules: map[rune]string{'F': "F+F--F+F", '-': "-", '+': "+"}}
+
 //Snowflake Koch Snowflake
 var Snowflake = L{seed: "F--F--F", rules: map[rune]string{'F': "F+F--F+F", '-': "-", '+': "+"}}
 
