@@ -1,6 +1,6 @@
 package utils
 
-//MvpVertShader MvpVertShader
+//MVPVertShader MVPVertShader
 var MVPVertShader = `
 #version 430 core
 
