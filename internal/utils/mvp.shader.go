@@ -20,11 +20,9 @@ void main()
 var MVPFragShader = `
 #version 430 core
 
-out vec4 color;
-
-vec4 red = vec4(0.2, 0.0, 0.0, 1.0);
+out vec4 colour;
 
 void main() {
-	color = red;
+	colour = vec4(1, 1, 1, 1.0);
 }
 ` + "\x00"

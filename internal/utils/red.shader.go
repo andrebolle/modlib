@@ -18,7 +18,7 @@ var FragmentShader = `
 
 out vec4 color;
 
-vec4 red = vec4(0.6, 0.0, 0.0, 1.0);
+vec4 red = vec4(0, 1, 1, 1.0);
 
 void main() {
 	color = red;
