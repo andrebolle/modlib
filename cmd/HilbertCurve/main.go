@@ -33,6 +33,7 @@ func main() {
 
 	// Generate the points
 	floatArray, coordCount := utils.Lsystem(hilbert, 6)
+	fmt.Println("coordCount", coordCount)
 	points := coordCount / 2
 
 	// Set the width of the window in pixels
