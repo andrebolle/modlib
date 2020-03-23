@@ -130,15 +130,15 @@ func main() {
 	// gl.Enable(gl.DEPTH_TEST)
 	// gl.DepthFunc(gl.LESS)
 
+	// Create first frame
+	floatArray, coordCount := utils.Lsystem(snowflake, angle)
+	points := coordCount / 2
+
+	// Copy the Geometry
+	gl.BufferData(gl.ARRAY_BUFFER, coordCount*4, unsafe.Pointer(&floatArray[0]), gl.STATIC_DRAW)
+
 	// Main loop
 	for !win.ShouldClose() {
-
-		// Create the Geometry
-		floatArray, coordCount := utils.Lsystem(snowflake, angle)
-		points := coordCount / 2
-
-		// Copy the Geometry
-		gl.BufferData(gl.ARRAY_BUFFER, coordCount*4, unsafe.Pointer(&floatArray[0]), gl.STATIC_DRAW)
 
 		// Update the View Transform, because the Camera may have moved
 		view := mgl32.LookAtV(cam.Position, cam.Position.Add(cam.Direction), cam.Up)
@@ -150,9 +150,15 @@ func main() {
 		// Draw the Geometry
 		gl.DrawArrays(gl.LINE_STRIP, 0, int32(points))
 
-		// Change the Hilbert Angle, ready for the next Frame
+		// Create the next frame if the animation has not been paused.
 		if pause == false {
 			angle += 0.0005
+			// Create the Geometry
+			floatArray, coordCount := utils.Lsystem(snowflake, angle)
+			points = coordCount / 2
+
+			// Copy the Geometry
+			gl.BufferData(gl.ARRAY_BUFFER, coordCount*4, unsafe.Pointer(&floatArray[0]), gl.STATIC_DRAW)
 		}
 
 		// Swap
