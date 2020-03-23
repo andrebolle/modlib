@@ -123,52 +123,61 @@ func main() {
 	// Causes position to be passed to the shader
 	gl.EnableVertexAttribArray(positionLocation)
 
-	// ------------------------- Pre Draw Setup --------------------------------
-	gl.ClearColor(0, 0, 0, 1.0)
-	gl.PointSize(2)
-	gl.Enable(gl.DEPTH_TEST)
-	gl.DepthFunc(gl.LESS)
+	// Define your L-System
+	// Hilbert https://en.wikipedia.org/wiki/Hilbert_curve#Representation_as_Lindenmayer_system
+	var hilbert = utils.L{
+		Seed:  "A",
+		Angle: math.Pi / 2,
+		Rules: map[rune]string{
+			'A': "-BF+AFA+FB-",
+			'B': "+AF-BFB-FA+",
+			'F': "F",
+			'-': "-",
+			'+': "+"}}
 
-	angle := float64(-1)
-	// Poll for window close
+	// Generate the L-system string
+	snowflake := utils.GenLString(hilbert, 6)
+	// Create a varying angle
+	angle := float64(0)
+
+	// Set Clear Colour
+	gl.ClearColor(0, 0, 0, 1.0)
+
+	// Set PointSize and/or LineWidth as required
+	gl.PointSize(4)
+	gl.LineWidth(4)
+
+	// Depth Test (if required)
+	// gl.Enable(gl.DEPTH_TEST)
+	// gl.DepthFunc(gl.LESS)
+
+	// Main loop
 	for !win.ShouldClose() {
 
-		// -------------------------Create the Vertices ------------------------
-
-		//Hilbert https://en.wikipedia.org/wiki/Hilbert_curve#Representation_as_Lindenmayer_system
-		var hilbert = utils.L{
-			Seed:  "A",
-			Angle: math.Pi/2 + angle,
-			Rules: map[rune]string{
-				'A': "-BF+AFA+FB-",
-				'B': "+AF-BFB-FA+",
-				'F': "F",
-				'-': "-",
-				'+': "+"}}
-
-		// Generate the points
-		floatArray, coordCount := utils.Lsystem(hilbert, 6)
-		//fmt.Println("coordCount", coordCount)
+		// Create the Geometry
+		floatArray, coordCount := utils.Lsystem(snowflake, angle)
 		points := coordCount / 2
 
-		// ------------------------ Copy Data --------------------------
+		// Copy the Geometry
 		gl.BufferData(gl.ARRAY_BUFFER, coordCount*4, unsafe.Pointer(&floatArray[0]), gl.STATIC_DRAW)
 
-		// Update View
+		// Update the View Transform, because the Camera may have moved
 		view := mgl32.LookAtV(cam.Position, cam.Position.Add(cam.Direction), cam.Up)
-
 		gl.UniformMatrix4fv(viewLocation, 1, false, &view[0])
 
-		// Clear screen
-		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+		// Set Clear gl.COLOR_BUFFER_BIT and gl.DEPTH_BUFFER_BIT as required
+		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		// Draw
+		// Draw the Geometry
 		gl.DrawArrays(gl.LINE_STRIP, 0, int32(points))
+
+		// Change the Hilbert Angle, ready for the next Frame
 		angle += 0.01
 
 		// Swap
 		win.SwapBuffers()
 
+		// Poll
 		glfw.PollEvents()
 	}
 }

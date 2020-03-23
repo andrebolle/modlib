@@ -11,7 +11,8 @@ type L struct {
 	Rules map[rune]string
 }
 
-func gen(l L, count uint) (oldSeed string) {
+//GenLString GenLString
+func GenLString(l L, count uint) (oldSeed string) {
 	oldSeed = l.Seed
 	for i := uint(0); i < count; i++ {
 		newSeed := ""
@@ -28,28 +29,23 @@ type Turtle struct {
 	x, y, heading, d, theta float64
 }
 
-const coordMax int = 25000
+const coordMax int = 50000
 
 //Lsystem Lsystem
-func Lsystem(l L, gens uint) (*[coordMax]float32, int) {
+func Lsystem(lString string, angle float64) (*[coordMax]float32, int) {
 
 	// Coord array
 	var floats [coordMax]float32
 
-	// Generate snowflake string
-	snowflake := gen(l, gens)
-	// fmt.Println(snowflake)
-	// fmt.Println(len(snowflake))
-
 	// Create a Turtle
-	t := Turtle{-0.5, 0.5, 0, 0.1, l.Angle}
+	t := Turtle{-0.5, 0.5, 0, 0.1, angle}
 
 	tally := 0
 	floats[0] = float32(t.x)
 	floats[1] = float32(t.y)
 	tally = 2
-	for i := 0; i < len(snowflake); i++ {
-		command := snowflake[i]
+	for i := 0; i < len(lString); i++ {
+		command := lString[i]
 		// fmt.Printf("Do: %c\n", command)
 		switch command {
 		case 'F':
