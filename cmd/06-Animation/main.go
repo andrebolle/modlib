@@ -35,23 +35,32 @@ func main() {
 	// Create a window
 	win := utils.CreateWindow(os.Args[0], int(width), int(height))
 
+	var pause bool = false
 	// Define the keyboard input callback function
 	keyCallback := func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
-		dt := float32(0.1)
-		switch key {
-		case glfw.KeyW:
-			cam.Position = cam.Position.Add(mgl32.Vec3{0, 0, -dt})
-		case glfw.KeyS:
-			cam.Position = cam.Position.Add(mgl32.Vec3{0, 0, dt})
-		case glfw.KeyA:
-			cam.Position = cam.Position.Add(mgl32.Vec3{-dt, 0, 0})
-		case glfw.KeyD:
-			cam.Position = cam.Position.Add(mgl32.Vec3{dt, 0, 0})
-		case glfw.KeyR:
-			cam.Position = cam.Position.Add(mgl32.Vec3{0, dt, 0})
-		case glfw.KeyF:
-			cam.Position = cam.Position.Add(mgl32.Vec3{0, -dt, 0})
+		// dt is the x, y, z move distance per press (or repeated press by holding the key down)
+		dt := float32(0.05)
+
+		// Check for Key Presses and repeats
+		if action == glfw.Press || action == glfw.Repeat {
+			switch key {
+			case glfw.KeyW:
+				cam.Position = cam.Position.Add(mgl32.Vec3{0, 0, -dt})
+			case glfw.KeyS:
+				cam.Position = cam.Position.Add(mgl32.Vec3{0, 0, dt})
+			case glfw.KeyA:
+				cam.Position = cam.Position.Add(mgl32.Vec3{-dt, 0, 0})
+			case glfw.KeyD:
+				cam.Position = cam.Position.Add(mgl32.Vec3{dt, 0, 0})
+			case glfw.KeyR:
+				cam.Position = cam.Position.Add(mgl32.Vec3{0, dt, 0})
+			case glfw.KeyF:
+				cam.Position = cam.Position.Add(mgl32.Vec3{0, -dt, 0})
+			case glfw.KeySpace:
+				pause = !pause
+			}
 		}
+
 	}
 
 	// Set Keyboard Callback function
@@ -114,8 +123,8 @@ func main() {
 	gl.ClearColor(0, 0, 0, 1.0)
 
 	// Set PointSize and/or LineWidth as required
-	gl.PointSize(4)
-	gl.LineWidth(4)
+	//gl.PointSize(4)
+	gl.LineWidth(2)
 
 	// Depth Test (if required)
 	// gl.Enable(gl.DEPTH_TEST)
@@ -142,7 +151,9 @@ func main() {
 		gl.DrawArrays(gl.LINE_STRIP, 0, int32(points))
 
 		// Change the Hilbert Angle, ready for the next Frame
-		angle += 0.01
+		if pause == false {
+			angle += 0.0005
+		}
 
 		// Swap
 		win.SwapBuffers()
