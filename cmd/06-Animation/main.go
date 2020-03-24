@@ -18,22 +18,28 @@ func main() {
 	// Lock this calling goroutine to its current operating system thread.
 	runtime.LockOSThread()
 
+	// Initializes the GLFW library
+	if err := glfw.Init(); err != nil {
+		panic(fmt.Errorf("I could not initialize glfw: %v", err))
+	}
+
 	// Print instructions
-	fmt.Println("Use W,A,S,D,R,F to move forward, left, backward, right, up and down.")
+	fmt.Println("Use W,A,S,D,E,C to move forward, left, backward, right, up and down.")
 
-	// Set the width of the window in pixels
-	const width float32 = 1600
+	// Camera and Sceen choices (width, height, aspect ratio)
+	monitor := glfw.GetPrimaryMonitor()
+	vidMode := monitor.GetVideoMode()
 
-	// Get a camera
+	// Set the camera aspect to the screen aspect
 	cam := utils.Cam()
+	cam.Aspect = float32(vidMode.Width) / float32(vidMode.Height)
 
-	// Find the window height to match the camera aspect ratio
-	height := int(width / cam.Aspect)
-	fmt.Println("Width x Height", width, height)
+	// Print this info
+	fmt.Println(vidMode.Width, "x ", vidMode.Height)
 	fmt.Println("cam.Aspect", cam.Aspect)
 
 	// Create a window
-	win := utils.CreateWindow(os.Args[0], int(width), int(height))
+	win := utils.CreateWindow(os.Args[0], vidMode.Width, vidMode.Height)
 
 	var pause bool = false
 	// Define the keyboard input callback function
@@ -52,9 +58,9 @@ func main() {
 				cam.Position = cam.Position.Add(mgl32.Vec3{-dt, 0, 0})
 			case glfw.KeyD:
 				cam.Position = cam.Position.Add(mgl32.Vec3{dt, 0, 0})
-			case glfw.KeyR:
+			case glfw.KeyE:
 				cam.Position = cam.Position.Add(mgl32.Vec3{0, dt, 0})
-			case glfw.KeyF:
+			case glfw.KeyC:
 				cam.Position = cam.Position.Add(mgl32.Vec3{0, -dt, 0})
 			case glfw.KeySpace:
 				pause = !pause
@@ -134,10 +140,10 @@ func main() {
 	floatArray, coordCount := utils.Lsystem(snowflake, angle)
 	points := coordCount / 2
 
-	// Copy the Geometry
+	// Copy the Geometry to the Array Buffer
 	gl.BufferData(gl.ARRAY_BUFFER, coordCount*4, unsafe.Pointer(&floatArray[0]), gl.STATIC_DRAW)
 
-	// Main loop
+	// The Render Loop
 	for !win.ShouldClose() {
 
 		// Update the View Transform, because the Camera may have moved
@@ -148,7 +154,7 @@ func main() {
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
 		// Draw the Geometry
-		gl.DrawArrays(gl.LINE_STRIP, 0, int32(points))
+		gl.DrawArrays(gl.TRIANGLES, 0, int32(points))
 
 		// Create the next frame if the animation has not been paused.
 		if pause == false {
