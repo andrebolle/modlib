@@ -13,31 +13,6 @@ import (
 	"github.com/purelazy/modlib/internal/utils"
 )
 
-func moveCamera(cam *utils.Camera, action glfw.Action, key glfw.Key) {
-	dt := float32(0.05)
-
-	// Check for Key Presses and repeats
-	if action == glfw.Press || action == glfw.Repeat {
-		switch key {
-		case glfw.KeyW:
-			cam.Position = cam.Position.Add(mgl32.Vec3{0, 0, -dt})
-		case glfw.KeyS:
-			cam.Position = cam.Position.Add(mgl32.Vec3{0, 0, dt})
-		case glfw.KeyA:
-			cam.Position = cam.Position.Add(mgl32.Vec3{-dt, 0, 0})
-		case glfw.KeyD:
-			cam.Position = cam.Position.Add(mgl32.Vec3{dt, 0, 0})
-		case glfw.KeyE:
-			cam.Position = cam.Position.Add(mgl32.Vec3{0, dt, 0})
-		case glfw.KeyC:
-			cam.Position = cam.Position.Add(mgl32.Vec3{0, -dt, 0})
-		case glfw.KeySpace:
-			cam.Paused = !cam.Paused
-		}
-	}
-
-}
-
 func main() {
 
 	// Lock this calling goroutine to its current operating system thread.
@@ -68,7 +43,7 @@ func main() {
 
 	// Define the keyboard input callback function
 	keyCallback := func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
-		moveCamera(cam, action, key)
+		utils.MoveCamera(cam, action, key)
 	}
 
 	// Set Keyboard Callback function

@@ -5,6 +5,7 @@ package utils
 import (
 	"math"
 
+	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/go-gl/mathgl/mgl32"
 )
 
@@ -22,20 +23,6 @@ type Camera struct {
 	Paused     bool
 }
 
-//MoveCamera Convert WASD keys to new camera position
-func (cam *Camera) MoveCamera(z, x, y float32) {
-	//direction := mgl32.Vec3{0, 0, 1}
-	//right := (Cam.LookAt).Cross(Cam.Up)
-	// Cam.Position = Cam.Position.
-	// 	//Add(Cam.LookAt.Mul(forward)).
-	// 	Add(direction.Mul(forward)).
-	// 	Add(right.Mul(horizontal)).
-	// 	Add(Cam.Up.Mul(vertical))
-	// fmt.Println(Cam.Position)
-	cam.Position = cam.Position.Add(mgl32.Vec3{x, y, z})
-	//fmt.Println(Cam.Position)
-}
-
 //Cam Cam
 func Cam() *Camera {
 
@@ -51,4 +38,30 @@ func Cam() *Camera {
 		Far:        1000,
 		Paused:     false,
 	}
+}
+
+//MoveCamera - Basic WASD with EC (Up/Down) and Space to Pause
+func MoveCamera(cam *Camera, action glfw.Action, key glfw.Key) {
+	dt := float32(0.05)
+
+	// Check for Key Presses and repeats
+	if action == glfw.Press || action == glfw.Repeat {
+		switch key {
+		case glfw.KeyW:
+			cam.Position = cam.Position.Add(mgl32.Vec3{0, 0, -dt})
+		case glfw.KeyS:
+			cam.Position = cam.Position.Add(mgl32.Vec3{0, 0, dt})
+		case glfw.KeyA:
+			cam.Position = cam.Position.Add(mgl32.Vec3{-dt, 0, 0})
+		case glfw.KeyD:
+			cam.Position = cam.Position.Add(mgl32.Vec3{dt, 0, 0})
+		case glfw.KeyE:
+			cam.Position = cam.Position.Add(mgl32.Vec3{0, dt, 0})
+		case glfw.KeyC:
+			cam.Position = cam.Position.Add(mgl32.Vec3{0, -dt, 0})
+		case glfw.KeySpace:
+			cam.Paused = !cam.Paused
+		}
+	}
+
 }
