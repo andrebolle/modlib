@@ -19,6 +19,7 @@ type Camera struct {
 	Fovy       float32
 	Near       float32
 	Far        float32
+	Paused     bool
 }
 
 //MoveCamera Convert WASD keys to new camera position
@@ -48,5 +49,6 @@ func Cam() *Camera {
 		Fovy:       math.Pi / 4,
 		Near:       0.01,
 		Far:        1000,
+		Paused:     false,
 	}
 }
