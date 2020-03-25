@@ -102,7 +102,6 @@ func main() {
 		Angle: math.Pi / 2,
 		Rules: map[rune]string{
 			'X': "^<XF^<XFX-F^>>XFX&F+>>XFX-F>X->",
-			//    ^<XF^<XFX-F^>>XFX&F+>>XFX-F>X->
 			'F': "F",
 			'-': "-",
 			'+': "+",
@@ -112,20 +111,16 @@ func main() {
 			'>': ">",
 		}}
 
-	//   LSystem["X",
-	//     {"X" -> "^<XF^<XFX-F^>>XFX&F+>>XFX-F>X->"}, 4],
-	// 	 Pi/2.0{1,1,1}, Boxed->False];
-
 	// Generate the L-system string
-	snowflake := utils.GenLString3D(hilbert, 2)
-	fmt.Println(snowflake)
+	snowflake := utils.GenLString3D(hilbert, 3)
+	//fmt.Println(snowflake)
 
 	// Set Clear Colour
 	gl.ClearColor(0, 0, 0, 1.0)
 
 	// Set PointSize and/or LineWidth as required
 	//gl.PointSize(4)
-	gl.LineWidth(1)
+	gl.LineWidth(3)
 
 	// Depth Test (if required)
 	// gl.Enable(gl.DEPTH_TEST)

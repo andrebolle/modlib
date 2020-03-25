@@ -61,7 +61,6 @@ func Lsystem3D(lString string, angle float64) (*[coordMax3D]float32, int) {
 
 	for i := 0; i < len(lString); i++ {
 
-
 		command := lString[i]
 
 		switch command {
@@ -104,7 +103,7 @@ func Lsystem3D(lString string, angle float64) (*[coordMax3D]float32, int) {
 
 		// Roll
 		case '>':
-			quatRotate := mgl32.QuatRotate(float32(angle), t.direction))
+			quatRotate := mgl32.QuatRotate(float32(angle), t.direction)
 			t.right = quatRotate.Rotate(t.right)
 			t.right = t.right.Normalize()
 
