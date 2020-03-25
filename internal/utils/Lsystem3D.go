@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/go-gl/mathgl/mgl32"
 )
@@ -38,6 +39,7 @@ const coordMax3D int = 50000
 
 //Lsystem3D Lsystem
 func Lsystem3D(lString string, angle float64) (*[coordMax3D]float32, int) {
+	fmt.Println("Len: ", len(lString))
 	const coordinates = 3
 
 	// Coord array
@@ -58,6 +60,12 @@ func Lsystem3D(lString string, angle float64) (*[coordMax3D]float32, int) {
 	floats[2] = float32(t.position.Z())
 	tally = coordinates
 	for i := 0; i < len(lString); i++ {
+
+		fmt.Println("Pos: ", t.position)
+		fmt.Println("Dir: ", math.Round(float64(t.direction.X())),
+			math.Round(float64(t.direction.Y())),
+			math.Round(float64(t.direction.Z())))
+
 		command := lString[i]
 		// fmt.Printf("Do: %c\n", command)
 		switch command {
@@ -71,42 +79,78 @@ func Lsystem3D(lString string, angle float64) (*[coordMax3D]float32, int) {
 		// 	t.position[0], t.position[1], t.position[2] = x1, y1, z1
 		// 	tally += coordinates
 		case 'F':
-			newPos := t.position.Add(t.direction.Mul(float32(t.d)))
-			floats[tally] = float32(newPos.X())
-			floats[tally+1] = float32(newPos.Y())
-			floats[tally+2] = float32(newPos.Z())
-			t.position = newPos
+			fmt.Println("Draw")
+			// newPos := t.position.Add(t.direction.Mul(float32(t.d)))
+			t.position = t.position.Add(t.direction.Mul(float32(t.d)))
+			floats[tally] = float32(t.position.X())
+			floats[tally+1] = float32(t.position.Y())
+			floats[tally+2] = float32(t.position.Z())
+			// t.position = newPos
 			tally += coordinates
 
-		// case '+':
-		// 	t.heading += t.theta
+		// Yaw/Turn
 		case '+':
-			axis := t.direction
-			axis = axis.Cross(t.right)
-			quatRotate := mgl32.QuatRotate(float32(angle), axis)
+			fmt.Println("Left")
+
+			//axis := t.direction
+			up := t.direction.Cross(t.right)
+			quatRotate := mgl32.QuatRotate(float32(angle), up)
 			t.direction = quatRotate.Rotate(t.direction)
 			t.right = quatRotate.Rotate(t.right)
 			t.direction = t.direction.Normalize()
 			t.right = t.right.Normalize()
 
-		// case '-':
-		// 	t.heading -= t.theta
 		case '-':
-			axis := t.direction
-			axis = axis.Cross(t.right)
-			quatRotate := mgl32.QuatRotate(float32(-angle), axis)
+			fmt.Println("Right")
+
+			//axis := t.direction
+			up := t.direction.Cross(t.right)
+			quatRotate := mgl32.QuatRotate(float32(-angle), up)
 			t.direction = quatRotate.Rotate(t.direction)
 			t.right = quatRotate.Rotate(t.right)
 			t.direction = t.direction.Normalize()
+			t.right = t.right.Normalize()
+
+		// Pitch
+		case '^':
+			fmt.Println("Up")
+
+			quatRotate := mgl32.QuatRotate(float32(-angle), t.right)
+			t.direction = quatRotate.Rotate(t.direction)
+			t.direction = t.direction.Normalize()
+
+		case '&':
+			fmt.Println("Down")
+
+			quatRotate := mgl32.QuatRotate(float32(angle), t.right)
+			t.direction = quatRotate.Rotate(t.direction)
+			t.direction = t.direction.Normalize()
+
+		// Roll
+		case '>':
+			fmt.Println("Roll Right")
+
+			quatRotate := mgl32.QuatRotate(float32(angle), t.direction)
+			// t.direction = quatRotate.Rotate(t.direction)
+			// t.direction = t.direction.Normalize()
+			t.right = quatRotate.Rotate(t.right)
+			t.right = t.right.Normalize()
+		case '<':
+			fmt.Println("Roll Left")
+
+			quatRotate := mgl32.QuatRotate(float32(-angle), t.direction)
+			// t.direction = quatRotate.Rotate(t.direction)
+			// t.direction = t.direction.Normalize()
+			t.right = quatRotate.Rotate(t.right)
 			t.right = t.right.Normalize()
 
 		case 'A':
 		case 'B':
+		case 'X':
 		default:
 			panic("unrecognized character")
 		}
-		fmt.Println("Pos: ", t.position)
-		fmt.Println("Dir: ", t.direction)
+
 	}
 
 	return &floats, tally

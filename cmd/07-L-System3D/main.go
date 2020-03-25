@@ -85,20 +85,39 @@ func main() {
 	// Causes position to be passed to the shader
 	gl.EnableVertexAttribArray(positionLocation)
 
-	// Define your L-System
-	// Hilbert https://en.wikipedia.org/wiki/Hilbert_curve#Representation_as_Lindenmayer_system
+	// // Define your L-System
+	// // Hilbert https://en.wikipedia.org/wiki/Hilbert_curve#Representation_as_Lindenmayer_system
+	// var hilbert = utils.L3D{
+	// 	Seed:  "A",
+	// 	Angle: math.Pi / 2,
+	// 	Rules: map[rune]string{
+	// 		'A': "-BF+AFA+FB-",
+	// 		'B': "+AF-BFB-FA+",
+	// 		'F': "F",
+	// 		'-': "-",
+	// 		'+': "+"}}
+
 	var hilbert = utils.L3D{
-		Seed:  "A",
+		Seed:  "X",
 		Angle: math.Pi / 2,
 		Rules: map[rune]string{
-			'A': "-BF+AFA+FB-",
-			'B': "+AF-BFB-FA+",
+			'X': "^<XF^<XFX-F^>>XFX&F+>>XFX-F>X->",
+			//    ^<XF^<XFX-F^>>XFX&F+>>XFX-F>X->
 			'F': "F",
 			'-': "-",
-			'+': "+"}}
+			'+': "+",
+			'^': "^",
+			'&': "&",
+			'<': "<",
+			'>': ">",
+		}}
+
+	//   LSystem["X",
+	//     {"X" -> "^<XF^<XFX-F^>>XFX&F+>>XFX-F>X->"}, 4],
+	// 	 Pi/2.0{1,1,1}, Boxed->False];
 
 	// Generate the L-system string
-	snowflake := utils.GenLString3D(hilbert, 3)
+	snowflake := utils.GenLString3D(hilbert, 2)
 	fmt.Println(snowflake)
 
 	// Set Clear Colour
