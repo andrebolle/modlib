@@ -12,7 +12,8 @@ import (
 //Camera : position, rotation etc
 type Camera struct {
 	Position   mgl32.Vec3
-	Direction  mgl32.Vec3
+	Forward    mgl32.Vec3
+	Right      mgl32.Vec3
 	Projection mgl32.Mat4
 	View       mgl32.Mat4
 	Up         mgl32.Vec3
@@ -28,7 +29,8 @@ func Cam() *Camera {
 
 	return &Camera{
 		Position:   mgl32.Vec3{0, 0, 4},
-		Direction:  mgl32.Vec3{0, 0, -1},
+		Forward:    mgl32.Vec3{0, 0, -1},
+		Right:      mgl32.Vec3{1, 0, 0},
 		Projection: mgl32.Ident4(),
 		View:       mgl32.Ident4(),
 		Up:         mgl32.Vec3{0, 1, 0},

@@ -16,7 +16,7 @@ func CreateWindow(title string, width, height int) *glfw.Window {
 	}
 
 	if err := glfw.Init(); err != nil {
-		panic(fmt.Errorf("could not initialize glfw: %v", err))
+		panic(fmt.Errorf("Could not initialize GLFW: %v", err))
 	}
 
 	glfw.WindowHint(glfw.ContextVersionMajor, 4)
@@ -28,7 +28,7 @@ func CreateWindow(title string, width, height int) *glfw.Window {
 	win, err := glfw.CreateWindow(width, height, title, nil, nil)
 
 	if err != nil {
-		panic(fmt.Errorf("could not create opengl renderer: %v", err))
+		panic(fmt.Errorf("Could not create OpenGL renderer: %v", err))
 	}
 
 	win.MakeContextCurrent()
