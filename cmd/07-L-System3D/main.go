@@ -34,12 +34,15 @@ func main() {
 	cam := utils.Cam()
 	cam.Aspect = float32(vidMode.Width) / float32(vidMode.Height)
 
-	// Print this info
+	// Print some info
 	fmt.Println(vidMode.Width, "x ", vidMode.Height)
 	fmt.Println("cam.Aspect", cam.Aspect)
 
 	// Create a window
 	win := utils.CreateWindow(os.Args[0], vidMode.Width, vidMode.Height)
+
+	// Write the graphics card name
+	fmt.Println(gl.GoStr(gl.GetString(gl.RENDERER)))
 
 	// Define the keyboard input callback function
 	keyCallback := func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
@@ -80,6 +83,8 @@ func main() {
 
 	// Describe the Position
 	// size: 2 floats per Position
+	// pointer: Specifies an offset in bytes of the first component of the first generic vertex attribute
+	// in the array in the data store of the buffer currently bound to the GL_ARRAY_BUFFER target.
 	gl.VertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, gl.PtrOffset(0))
 
 	// Causes position to be passed to the shader
@@ -120,7 +125,7 @@ func main() {
 
 	// Set PointSize and/or LineWidth as required
 	//gl.PointSize(4)
-	gl.LineWidth(3)
+	gl.LineWidth(1)
 
 	// Depth Test (if required)
 	// gl.Enable(gl.DEPTH_TEST)
