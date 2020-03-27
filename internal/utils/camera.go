@@ -50,13 +50,13 @@ func MoveCamera(cam *Camera, action glfw.Action, key glfw.Key) {
 	if action == glfw.Press || action == glfw.Repeat {
 		switch key {
 		case glfw.KeyW:
-			cam.Position = cam.Position.Add(mgl32.Vec3{0, 0, -dt})
+			cam.Position = cam.Position.Add(cam.Forward.Mul(dt))
 		case glfw.KeyS:
-			cam.Position = cam.Position.Add(mgl32.Vec3{0, 0, dt})
+			cam.Position = cam.Position.Add(cam.Forward.Mul(-dt))
 		case glfw.KeyA:
-			cam.Position = cam.Position.Add(mgl32.Vec3{-dt, 0, 0})
+			cam.Position = cam.Position.Add(cam.Right.Mul(-dt))
 		case glfw.KeyD:
-			cam.Position = cam.Position.Add(mgl32.Vec3{dt, 0, 0})
+			cam.Position = cam.Position.Add(cam.Right.Mul(dt))
 		case glfw.KeyE:
 			cam.Position = cam.Position.Add(mgl32.Vec3{0, dt, 0})
 		case glfw.KeyC:
@@ -65,5 +65,23 @@ func MoveCamera(cam *Camera, action glfw.Action, key glfw.Key) {
 			cam.Paused = !cam.Paused
 		}
 	}
+
+}
+
+// YawPitchCamera YawPitchCamera
+func YawPitchCamera(t *Camera, yaw, pitch float64) {
+
+	// Yaw/Turn
+	up := t.Forward.Cross(t.Right)
+	quatRotate := mgl32.QuatRotate(float32(yaw), up)
+	t.Forward = quatRotate.Rotate(t.Forward)
+	t.Right = quatRotate.Rotate(t.Right)
+	t.Forward = t.Forward.Normalize()
+	t.Right = t.Right.Normalize()
+
+	// Pitch
+	quatRotate = mgl32.QuatRotate(float32(-pitch), t.Right)
+	t.Forward = quatRotate.Rotate(t.Forward)
+	t.Forward = t.Forward.Normalize()
 
 }

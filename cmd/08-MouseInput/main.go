@@ -13,36 +13,6 @@ import (
 	"github.com/purelazy/modlib/internal/utils"
 )
 
-func updateCameraYawPitch(t *utils.Camera, yaw, pitch float64) {
-	// Yaw/Turn
-	// case '+':
-	up := t.Forward.Cross(t.Right)
-	quatRotate := mgl32.QuatRotate(float32(yaw), up)
-	t.Forward = quatRotate.Rotate(t.Forward)
-	t.Right = quatRotate.Rotate(t.Right)
-	t.Forward = t.Forward.Normalize()
-	t.Right = t.Right.Normalize()
-
-	// case '-':
-	// 	up := t.direction.Cross(t.right)
-	// 	quatRotate := mgl32.QuatRotate(float32(-angle), up)
-	// 	t.direction = quatRotate.Rotate(t.direction)
-	// 	t.right = quatRotate.Rotate(t.right)
-	// 	t.direction = t.direction.Normalize()
-	// 	t.right = t.right.Normalize()
-
-	// Pitch
-	// case '^':
-	quatRotate = mgl32.QuatRotate(float32(pitch), t.Right)
-	t.Forward = quatRotate.Rotate(t.Forward)
-	t.Forward = t.Forward.Normalize()
-
-	// case '&':
-	// 	quatRotate := mgl32.QuatRotate(float32(angle), t.right)
-	// 	t.direction = quatRotate.Rotate(t.direction)
-	// 	t.direction = t.direction.Normalize()
-}
-
 func main() {
 
 	// Lock this calling goroutine to its current operating system thread.
@@ -112,7 +82,7 @@ func main() {
 		yaw, pitch = mouseDx/600, mouseDy/600
 		fmt.Println(yaw, pitch)
 		xOld, yOld = xPos, yPos
-		updateCameraYawPitch(cam, yaw, pitch)
+		utils.YawPitchCamera(cam, yaw, pitch)
 	}
 
 	win.SetCursorPosCallback(mouseCallback)
