@@ -65,6 +65,10 @@ func MoveCamera(cam *Camera, action glfw.Action, key glfw.Key) {
 			cam.Paused = !cam.Paused
 		}
 	}
+	cam.Position[1] = 0.5
+	// if cam.Position.Y() < 0.2 {
+	// 	cam.Position[1] = 0.2
+	// }
 
 }
 
