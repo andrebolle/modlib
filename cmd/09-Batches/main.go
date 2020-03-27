@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"os"
 	"runtime"
 	"unsafe"
@@ -51,44 +50,10 @@ func main() {
 	}
 	win.SetKeyCallback(keyCallback)
 
-	// Mouse Setup
-	// Hide the cursor
-	win.SetInputMode(glfw.CursorMode, glfw.CursorDisabled)
-
-	// Raw mouse motion
-	// ----------------
-	//
-	// When the cursor is disabled, raw (unscaled and unaccelerated) mouse motion
-	// can be enabled if available.
-	//
-	// Raw mouse motion is closer to the actual motion of the mouse across a surface.
-	// It is not affected by the scaling and acceleration applied to the motion of the
-	// desktop cursor. That processing is suitable for a cursor while raw motion is
-	// better for controlling for example a 3D camera. Because of this, raw mouse motion
-	// is only provided when the cursor is disabled.
-	if glfw.RawMouseMotionSupported() {
-		fmt.Println("Using raw mouse motion")
-		win.SetInputMode(glfw.RawMouseMotion, glfw.True)
-	}
-
-	// Set initial cursor position
-	win.SetCursorPos(float64(vidMode.Width)/4, float64(vidMode.Height)/4)
-	xOld, yOld := win.GetCursorPos()
-	var mouseDx, mouseDy float64 = 0, 0
-	var yaw, pitch float64 = 0, 0
-	mouseCallback := func(w *glfw.Window, xPos float64, yPos float64) {
-
-		mouseDx, mouseDy = xPos-xOld, yPos-yOld
-		yaw, pitch = mouseDx/600, mouseDy/600
-		//fmt.Println(yaw, pitch)
-		xOld, yOld = xPos, yPos
-		utils.YawPitchCamera(cam, yaw, pitch)
-	}
-
-	win.SetCursorPosCallback(mouseCallback)
+	utils.CreateMouse(win, cam)
 
 	// Create and Use the Shader
-	program, _ := utils.CreateVF(utils.MVPVertShader, utils.MVPFragShader)
+	program, _ := utils.CreateVF(utils.MVPColourVertShader, utils.MVPColourFragShader)
 	defer gl.DeleteProgram(program)
 	gl.UseProgram(program)
 
@@ -97,6 +62,7 @@ func main() {
 	viewLocation := gl.GetUniformLocation(program, gl.Str("view\x00"))
 	projectionUniform := gl.GetUniformLocation(program, gl.Str("projection\x00"))
 	positionLocation := uint32(gl.GetAttribLocation(program, gl.Str("position\x00")))
+	colourLocation := uint32(gl.GetAttribLocation(program, gl.Str("colour\x00")))
 
 	// Set Model
 	model := mgl32.Ident4()
@@ -106,54 +72,40 @@ func main() {
 	projection := mgl32.Perspective(cam.Fovy, cam.Aspect, cam.Near, cam.Far)
 	gl.UniformMatrix4fv(projectionUniform, 1, false, &projection[0])
 
-	// Create a Vertex Array
+	// Create a Vertex Array - I will use 2 buffers, on for vertices, one for colours
 	var array uint32
 	gl.GenVertexArrays(1, &array)
 	gl.BindVertexArray(array)
 
-	// Create a Buffer
-	var buffer uint32
-	gl.GenBuffers(1, &buffer)
-	gl.BindBuffer(gl.ARRAY_BUFFER, buffer)
-
+	// Create a Buffer for the vertices
+	var vertexBuffer uint32
+	gl.GenBuffers(1, &vertexBuffer)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
 	// Describe the Position
 	// size: 2 floats per Position
 	// pointer: Specifies an offset in bytes of the first component of the first generic vertex attribute
 	// in the array in the data store of the buffer currently bound to the GL_ARRAY_BUFFER target.
 	gl.VertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, gl.PtrOffset(0))
-
 	// Causes position to be passed to the shader
 	gl.EnableVertexAttribArray(positionLocation)
+	// Copy the Geometry to the Array Buffer
+	fmt.Println("len(cube)", len(utils.Cube))
+	gl.BufferData(gl.ARRAY_BUFFER, len(utils.Cube)*4, unsafe.Pointer(&utils.Cube[0]), gl.STATIC_DRAW)
 
-	// // Define your L-System
-	// // Hilbert https://en.wikipedia.org/wiki/Hilbert_curve#Representation_as_Lindenmayer_system
-	// var hilbert = utils.L3D{
-	// 	Seed:  "A",
-	// 	Angle: math.Pi / 2,
-	// 	Rules: map[rune]string{
-	// 		'A': "-BF+AFA+FB-",
-	// 		'B': "+AF-BFB-FA+",
-	// 		'F': "F",
-	// 		'-': "-",
-	// 		'+': "+"}}
-
-	var hilbert = utils.L3D{
-		Seed:  "X",
-		Angle: math.Pi / 2,
-		Rules: map[rune]string{
-			'X': "^<XF^<XFX-F^>>XFX&F+>>XFX-F>X->",
-			'F': "F",
-			'-': "-",
-			'+': "+",
-			'^': "^",
-			'&': "&",
-			'<': "<",
-			'>': ">",
-		}}
-
-	// Generate the L-system string
-	snowflake := utils.GenLString3D(hilbert, 3)
-	//fmt.Println(snowflake)
+	// Create a Buffer for the colours
+	var colourBuffer uint32
+	gl.GenBuffers(1, &colourBuffer)
+	gl.BindBuffer(gl.ARRAY_BUFFER, colourBuffer)
+	// Describe the Position
+	// size: 2 floats per Position
+	// pointer: Specifies an offset in bytes of the first component of the first generic vertex attribute
+	// in the array in the data store of the buffer currently bound to the GL_ARRAY_BUFFER target.
+	gl.VertexAttribPointer(colourLocation, 3, gl.FLOAT, false, 0, gl.PtrOffset(0))
+	// Causes position to be passed to the shader
+	gl.EnableVertexAttribArray(colourLocation)
+	// Copy the Geometry to the Array Buffer
+	fmt.Println("len(cubeColour)", len(utils.CubeColour))
+	gl.BufferData(gl.ARRAY_BUFFER, len(utils.CubeColour)*4, unsafe.Pointer(&utils.CubeColour[0]), gl.STATIC_DRAW)
 
 	// Set Clear Colour
 	gl.ClearColor(0, 0, 0, 1.0)
@@ -163,15 +115,12 @@ func main() {
 	gl.LineWidth(1)
 
 	// Depth Test (if required)
-	// gl.Enable(gl.DEPTH_TEST)
-	// gl.DepthFunc(gl.LESS)
+	gl.Enable(gl.DEPTH_TEST)
+	gl.DepthFunc(gl.LESS)
 
-	// Create first frame
-	floatArray, coordCount := utils.Lsystem3D(snowflake, hilbert.Angle)
-	points := coordCount / 3
-
-	// Copy the Geometry to the Array Buffer
-	gl.BufferData(gl.ARRAY_BUFFER, coordCount*4, unsafe.Pointer(&floatArray[0]), gl.STATIC_DRAW)
+	// // Copy the Geometry to the Array Buffer
+	// fmt.Println("len(cube)", len(utils.Cube))
+	// gl.BufferData(gl.ARRAY_BUFFER, len(utils.Cube)*4, unsafe.Pointer(&utils.Cube[0]), gl.STATIC_DRAW)
 
 	// The Render Loop
 	for !win.ShouldClose() {
@@ -181,10 +130,10 @@ func main() {
 		gl.UniformMatrix4fv(viewLocation, 1, false, &view[0])
 
 		// Set Clear gl.COLOR_BUFFER_BIT and gl.DEPTH_BUFFER_BIT as required
-		gl.Clear(gl.COLOR_BUFFER_BIT)
+		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		// Draw the Geometry
-		gl.DrawArrays(gl.LINE_STRIP, 0, int32(points))
+		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(utils.Cube)/3))
 
 		// Swap
 		win.SwapBuffers()
