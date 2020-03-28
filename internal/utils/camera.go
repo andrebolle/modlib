@@ -44,7 +44,7 @@ func Cam() *Camera {
 
 //MoveCamera - Basic WASD with EC (Up/Down) and Space to Pause
 func MoveCamera(cam *Camera, action glfw.Action, key glfw.Key) {
-	dt := float32(0.05)
+	dt := float32(0.2)
 
 	// Check for Key Presses and repeats
 	if action == glfw.Press || action == glfw.Repeat {

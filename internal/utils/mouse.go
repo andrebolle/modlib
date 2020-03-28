@@ -26,11 +26,11 @@ func CreateMouse(win *glfw.Window, cam *Camera) {
 	// 400 and 300 ar magic numbers
 	win.SetCursorPos(400, 300)
 	xOld, yOld = win.GetCursorPos()
-	fmt.Println(xOld, yOld)
+	//fmt.Println(xOld, yOld)
 
 	// The callback function
 	mouseCallback := func(w *glfw.Window, xPos float64, yPos float64) {
-		fmt.Println(xPos, yPos)
+		//fmt.Println(xPos, yPos)
 
 		mouseDx, mouseDy := xPos-xOld, yPos-yOld
 		yaw, pitch := mouseDx/600, mouseDy/600
