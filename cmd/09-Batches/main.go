@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"runtime"
+	"time"
 	"unsafe"
 
 	"github.com/go-gl/gl/v4.6-core/gl"
@@ -72,6 +74,36 @@ func main() {
 	projection := mgl32.Perspective(cam.Fovy, cam.Aspect, cam.Near, cam.Far)
 	gl.UniformMatrix4fv(projectionUniform, 1, false, &projection[0])
 
+	// Testing testing
+
+	//cubeSlice := make([]float32, len(utils.Cube))
+	// The builtin copy(dst, src) copies min(len(dst), len(src)) elements.
+	// copy(cubeSlice, utils.Cube) // Copy Cube (1)
+
+	cubeSlice := make([]float32, 0)
+	colourSlice := make([]float32, 0)
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	for cubeY := 0; cubeY < 10; cubeY++ {
+		for cubeX := 0; cubeX < 10; cubeX++ {
+			// Copy the cube (transforming the vertices)
+			for i := 0; i < len(utils.Cube); i += 3 { // Copy cube (2)
+				// Shift to the right
+				var x1, y1, z1 float32
+				x1 = utils.Cube[i] + 4*float32(cubeX)
+				y1 = utils.Cube[i+1] + 4*float32(cubeY)
+				z1 = utils.Cube[i+2]
+				cubeSlice = append(cubeSlice, x1, y1, z1)
+			}
+
+			// Copy the colours or generate a random one
+			for i := 0; i < len(utils.CubeColour); i++ { // Copy cube (2)
+				colourSlice = append(colourSlice, utils.CubeColour[i])
+				//colourSlice = append(colourSlice, rand.Float32())
+			}
+
+		}
+	}
 	// Create a Vertex Array - I will use 2 buffers, on for vertices, one for colours
 	var array uint32
 	gl.GenVertexArrays(1, &array)
@@ -81,31 +113,18 @@ func main() {
 	var vertexBuffer uint32
 	gl.GenBuffers(1, &vertexBuffer)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
-	// Describe the Position
-	// size: 2 floats per Position
-	// pointer: Specifies an offset in bytes of the first component of the first generic vertex attribute
-	// in the array in the data store of the buffer currently bound to the GL_ARRAY_BUFFER target.
 	gl.VertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, gl.PtrOffset(0))
-	// Causes position to be passed to the shader
 	gl.EnableVertexAttribArray(positionLocation)
-	// Copy the Geometry to the Array Buffer
-	fmt.Println("len(cube)", len(utils.Cube))
-	gl.BufferData(gl.ARRAY_BUFFER, len(utils.Cube)*4, unsafe.Pointer(&utils.Cube[0]), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(cubeSlice)*4, unsafe.Pointer(&cubeSlice[0]), gl.STATIC_DRAW)
 
 	// Create a Buffer for the colours
 	var colourBuffer uint32
 	gl.GenBuffers(1, &colourBuffer)
 	gl.BindBuffer(gl.ARRAY_BUFFER, colourBuffer)
-	// Describe the Position
-	// size: 2 floats per Position
-	// pointer: Specifies an offset in bytes of the first component of the first generic vertex attribute
-	// in the array in the data store of the buffer currently bound to the GL_ARRAY_BUFFER target.
 	gl.VertexAttribPointer(colourLocation, 3, gl.FLOAT, false, 0, gl.PtrOffset(0))
-	// Causes position to be passed to the shader
 	gl.EnableVertexAttribArray(colourLocation)
-	// Copy the Geometry to the Array Buffer
-	fmt.Println("len(cubeColour)", len(utils.CubeColour))
-	gl.BufferData(gl.ARRAY_BUFFER, len(utils.CubeColour)*4, unsafe.Pointer(&utils.CubeColour[0]), gl.STATIC_DRAW)
+	//gl.BufferData(gl.ARRAY_BUFFER, len(utils.CubeColour)*4, unsafe.Pointer(&utils.CubeColour[0]), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(colourSlice)*4, unsafe.Pointer(&colourSlice[0]), gl.STATIC_DRAW)
 
 	// Set Clear Colour
 	gl.ClearColor(0, 0, 0, 1.0)
@@ -133,7 +152,7 @@ func main() {
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		// Draw the Geometry
-		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(utils.Cube)/3))
+		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(cubeSlice)/3))
 
 		// Swap
 		win.SwapBuffers()
