@@ -65,8 +65,8 @@ func FullScreen() (*glfw.Window, *Camera) {
 	return win, cam
 }
 
-// AppInit Boilerplate. LockOSThread, GLFW, Window & Callbacks
-func AppInit() (*glfw.Window, *Camera) {
+// GetWindowAndCamera Boilerplate. LockOSThread, GLFW, Window & Callbacks
+func GetWindowAndCamera() (*glfw.Window, *Camera) {
 	// Lock this calling goroutine to its current operating system thread.
 	runtime.LockOSThread()
 
