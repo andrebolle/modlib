@@ -1,0 +1,14 @@
+You need vertices
+Lock this calling goroutine to its current operating system thread.
+Initializes the GLFW library
+Create Window and OpenGL context
+Print any useful info/help.
+Set callbacks for user input
+Create and Use the Shader
+Gen and Bind Vertex Array & Buffer
+Copy vertices to array buffer
+Get Uniform and Atrribute Locations
+Do VertexAttribPointer & EnableVertexAttribArray
+Set MVP as required
+Set GL state for the draw. Clear, Culling, Depth etc
+Main Draw Loop

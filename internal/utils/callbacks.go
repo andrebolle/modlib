@@ -29,33 +29,68 @@ func YawPitchCamera(t *Camera, yaw, pitch float64) {
 }
 
 //MoveCamera - Basic WASD with EC (Up/Down) and Space to Pause
-func MoveCamera(cam *Camera, action glfw.Action, key glfw.Key) {
+func MoveCamera(win *glfw.Window, cam *Camera, action glfw.Action, key glfw.Key, scancode int) {
 	dt := float32(0.1)
 
-	// Check for Key Presses and repeats
-	if action == glfw.Press || action == glfw.Repeat {
-		switch key {
-		case glfw.KeyW:
-			cam.Position = cam.Position.Add(cam.Forward.Mul(dt))
-		case glfw.KeyS:
-			cam.Position = cam.Position.Add(cam.Forward.Mul(-dt))
-		case glfw.KeyA:
-			cam.Position = cam.Position.Add(cam.Right.Mul(-dt))
-		case glfw.KeyD:
-			cam.Position = cam.Position.Add(cam.Right.Mul(dt))
-		case glfw.KeyE:
-			cam.Position = cam.Position.Add(mgl32.Vec3{0, dt, 0})
-		case glfw.KeyC:
-			cam.Position = cam.Position.Add(mgl32.Vec3{0, -dt, 0})
-		case glfw.KeySpace:
-			cam.Paused = !cam.Paused
-		}
+	if key == glfw.KeyEscape && action == glfw.Press {
+		win.SetShouldClose(true)
 	}
-	//cam.Position[1] = 0.5
-	// if cam.Position.Y() < 0.2 {
-	// 	cam.Position[1] = 0.2
-	// }
 
+	state := win.GetKey(glfw.KeyW)
+	if state == glfw.Press {
+		cam.Position = cam.Position.Add(cam.Forward.Mul(dt))
+	}
+
+	state = win.GetKey(glfw.KeyA)
+	if state == glfw.Press {
+		cam.Position = cam.Position.Add(cam.Right.Mul(-dt))
+	}
+
+	state = win.GetKey(glfw.KeyS)
+	if state == glfw.Press {
+		cam.Position = cam.Position.Add(cam.Forward.Mul(-dt))
+	}
+
+	state = win.GetKey(glfw.KeyD)
+	if state == glfw.Press {
+		cam.Position = cam.Position.Add(cam.Right.Mul(dt))
+	}
+
+	state = win.GetKey(glfw.KeyE)
+	if state == glfw.Press {
+		cam.Position = cam.Position.Add(mgl32.Vec3{0, dt, 0})
+	}
+
+	state = win.GetKey(glfw.KeyC)
+	if state == glfw.Press {
+		cam.Position = cam.Position.Add(mgl32.Vec3{0, -dt, 0})
+	}
+
+	state = win.GetKey(glfw.KeySpace)
+	if state == glfw.Press {
+		fmt.Println("Toggle Pause")
+		cam.Paused = !cam.Paused
+	}
+
+	// // Check for Key Presses and repeats
+	// if action == glfw.Press || action == glfw.Repeat {
+	// 	switch key {
+	// 	// case glfw.KeyW:
+	// 	// 	cam.Position = cam.Position.Add(cam.Forward.Mul(dt))
+	// 	// case glfw.KeyS:
+	// 	// 	cam.Position = cam.Position.Add(cam.Forward.Mul(-dt))
+	// 	// case glfw.KeyA:
+	// 	// 	cam.Position = cam.Position.Add(cam.Right.Mul(-dt))
+	// 	// case glfw.KeyD:
+	// 	// 	cam.Position = cam.Position.Add(cam.Right.Mul(dt))
+	// 	// case glfw.KeyE:
+	// 	// 	cam.Position = cam.Position.Add(mgl32.Vec3{0, dt, 0})
+	// 	// case glfw.KeyC:
+	// 	// 	cam.Position = cam.Position.Add(mgl32.Vec3{0, -dt, 0})
+	// 	case glfw.KeySpace:
+	// 		cam.Paused = !cam.Paused
+	// 	}
+	// }
 }
 
 // SetPitchYawCallback SetPitchYawCallback
@@ -96,7 +131,7 @@ func SetPitchYawCallback(win *glfw.Window, cam *Camera) {
 func SetWASDCallback(win *glfw.Window, cam *Camera) {
 	// Keyboard Setup
 	keyCallback := func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
-		MoveCamera(cam, action, key)
+		MoveCamera(win, cam, action, key, scancode)
 	}
 	win.SetKeyCallback(keyCallback)
 }

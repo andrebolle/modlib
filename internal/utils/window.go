@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -47,19 +48,44 @@ func CreateWindow(title string, width, height int) *glfw.Window {
 
 // FullScreen FullScreen
 func FullScreen() (*glfw.Window, *Camera) {
-		// Camera and Sceen choices (width, height, aspect ratio)
-		monitor := glfw.GetPrimaryMonitor()
-		vidMode := monitor.GetVideoMode()
-	
-		// Set the camera aspect to the screen aspect
-		cam := Cam()
-		cam.Aspect = float32(vidMode.Width) / float32(vidMode.Height)
-	
-		// Print some info
-		fmt.Println(vidMode.Width, "x ", vidMode.Height)
-		fmt.Println("cam.Aspect", cam.Aspect)
-	
-		// Create a window
-		win := CreateWindow(os.Args[0], vidMode.Width, vidMode.Height)
-		return win, cam
+	// Camera and Sceen choices (width, height, aspect ratio)
+	monitor := glfw.GetPrimaryMonitor()
+	vidMode := monitor.GetVideoMode()
+
+	// Set the camera aspect to the screen aspect
+	cam := Cam()
+	cam.Aspect = float32(vidMode.Width) / float32(vidMode.Height)
+
+	// Print some info
+	fmt.Println(vidMode.Width, "x ", vidMode.Height)
+	fmt.Println("cam.Aspect", cam.Aspect)
+
+	// Create a window
+	win := CreateWindow(os.Args[0], vidMode.Width, vidMode.Height)
+	return win, cam
+}
+
+// AppInit Boilerplate. LockOSThread, GLFW, Window & Callbacks
+func AppInit() (*glfw.Window, *Camera) {
+	// Lock this calling goroutine to its current operating system thread.
+	runtime.LockOSThread()
+
+	// Initializes the GLFW library
+	if err := glfw.Init(); err != nil {
+		panic(fmt.Errorf("I could not initialize glfw: %v", err))
+	}
+
+	// Create Window and OpenGL context
+	win, cam := FullScreen()
+
+	// Print any useful info/help.
+	fmt.Println(GraphicsCardName())
+	fmt.Println("Use W,A,S,D to move forward, left, backward and right.")
+	fmt.Println("Use E,C to move skyward and earthward.")
+
+	// Set callbacks for user input
+	SetWASDCallback(win, cam)
+	SetPitchYawCallback(win, cam)
+
+	return win, cam
 }
