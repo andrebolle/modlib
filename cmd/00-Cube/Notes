@@ -3,7 +3,6 @@ Set up
  A basic Shader
  A basic Vertex Array and Buffer
  The array of Vertices
-Enf of Setup
 
 Copy vertices to array buffer
 Get Uniform and Atrribute Locations
@@ -13,5 +12,6 @@ Use UniformMatrix4fv to set MVP as required
 Pre Draw Setup
  ClearColor
 
-
 Main Draw Loop
+ Update the View Transform, because the Camera may have moved
+ Clear, Draw, Swap, Poll

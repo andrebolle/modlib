@@ -41,8 +41,6 @@ func main() {
 		{-0.85, 0.90},
 	}
 
-	// ---------------------- Enf of Setup
-
 	// Copy the Vertices to the Buffer
 	gl.BufferData(gl.ARRAY_BUFFER, int(unsafe.Sizeof(vertices)), unsafe.Pointer(&vertices), gl.STATIC_DRAW)
 
