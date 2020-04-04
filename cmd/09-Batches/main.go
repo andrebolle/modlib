@@ -46,13 +46,14 @@ func main() {
 	// Write the graphics card name
 	fmt.Println(gl.GoStr(gl.GetString(gl.RENDERER)))
 
-	// Keyboard Setup
-	keyCallback := func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
-		utils.MoveCamera(cam, action, key)
-	}
-	win.SetKeyCallback(keyCallback)
+	// // Keyboard Setup
+	// keyCallback := func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
+	// 	utils.MoveCamera(cam, action, key)
+	// }
+	// win.SetKeyCallback(keyCallback)
 
-	utils.CreateMouse(win, cam)
+	utils.SetWASDCallback(win, cam)
+	utils.SetPitchYawCallback(win, cam)
 
 	// Create and Use the Shader
 	program, _ := utils.CreateVF(utils.MVPColourVertShader, utils.MVPColourFragShader)
@@ -84,24 +85,38 @@ func main() {
 	colourSlice := make([]float32, 0)
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	for cubeY := 0; cubeY < 10; cubeY++ {
-		for cubeX := 0; cubeX < 10; cubeX++ {
-			// Copy the cube (transforming the vertices)
-			for i := 0; i < len(utils.Cube); i += 3 { // Copy cube (2)
-				// Shift to the right
-				var x1, y1, z1 float32
-				x1 = utils.Cube[i] + 4*float32(cubeX)
-				y1 = utils.Cube[i+1] + 4*float32(cubeY)
-				z1 = utils.Cube[i+2]
-				cubeSlice = append(cubeSlice, x1, y1, z1)
-			}
+	for cubeZ := 0; cubeZ < 10; cubeZ++ {
+		for cubeY := 0; cubeY < 10; cubeY++ {
+			for cubeX := 0; cubeX < 10; cubeX++ {
+				// Copy the cube (transforming the vertices)
+				for i := 0; i < len(utils.Cube); i += 3 { // Copy cube (2)
+					// Shift to the right
+					var x1, y1, z1 float32
+					x1 = utils.Cube[i] + 14*float32(cubeX)
+					y1 = utils.Cube[i+1] + 14*float32(cubeY)
+					z1 = utils.Cube[i+2] - 14*float32(cubeZ)
+					cubeSlice = append(cubeSlice, x1, y1, z1)
+				}
 
-			// Copy the colours or generate a random one
-			for i := 0; i < len(utils.CubeColour); i++ { // Copy cube (2)
-				colourSlice = append(colourSlice, utils.CubeColour[i])
-				//colourSlice = append(colourSlice, rand.Float32())
-			}
+				// // Different Coloured Faces
+				// for i := 0; i < len(utils.CubeColour); i += 18 { // Copy cube (2)
+				// 	r := rand.Float32()
+				// 	g := rand.Float32()
+				// 	b := rand.Float32()
+				// 	colourSlice = append(colourSlice, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b)
+				// }
 
+				r := rand.Float32()
+				g := rand.Float32()
+				b := rand.Float32()
+
+				// Different Coloured Cube
+				for i := 0; i < len(utils.CubeColour); i += 3 { // Copy cube (2)
+
+					colourSlice = append(colourSlice, r, g, b)
+				}
+
+			}
 		}
 	}
 	// Create a Vertex Array - I will use 2 buffers, on for vertices, one for colours

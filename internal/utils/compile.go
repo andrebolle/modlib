@@ -10,8 +10,15 @@ import (
 //Compile Compile a shader
 func Compile(source string, shaderType uint32) (uint32, error) {
 	shader := gl.CreateShader(shaderType)
+	if shader == 0 {
+		panic("gl.CreateShader returned zero")
+	}
 
 	csources, free := gl.Strs(source)
+	// OpenGL copies the shader source code strings when glShaderSource is called,
+	// so an application may free its copy of the source code strings immediately
+	// after the function returns.
+	// If length is NULL, each string is assumed to be null terminated.
 	gl.ShaderSource(shader, 1, csources, nil)
 	free()
 	gl.CompileShader(shader)
@@ -28,15 +35,13 @@ func Compile(source string, shaderType uint32) (uint32, error) {
 
 		gl.GetShaderInfoLog(shader, logLength, nil, gl.Str(log))
 		fmt.Println("CompileShader log")
-		fmt.Println(log)
-
-		return 0, fmt.Errorf("Failed to compile %v: %v", source, log)
+		panic(fmt.Errorf("Failed to compile %v: %v", source, log))
 	}
 
 	return shader, nil
 }
 
-//CreateVF Create a Vertex --> Fragment shader
+// CreateVF Create a Vertex --> Fragment shader
 func CreateVF(vertexShaderSource, fragmentShaderSource string) (uint32, error) {
 	vertexShader, err := Compile(vertexShaderSource, gl.VERTEX_SHADER)
 	if err != nil {

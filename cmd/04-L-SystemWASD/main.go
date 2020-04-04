@@ -106,7 +106,7 @@ func main() {
 	// Poll for window close
 	for !win.ShouldClose() {
 		// Update View
-		view := mgl32.LookAtV(cam.Position, cam.Position.Add(cam.Direction), cam.Up)
+		view := mgl32.LookAtV(cam.Position, cam.Position.Add(cam.Forward), cam.Up)
 
 		gl.UniformMatrix4fv(viewLocation, 1, false, &view[0])
 

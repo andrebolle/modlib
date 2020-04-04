@@ -1,0 +1,5 @@
+Hi,
+
+Whilst playing with the "Tube" geometry "NewTube( )" I have realised that the geometry is in fact intended to be viewed from inside, i.e. as a "Tunnel". I initially thought it could be viewed from the outside, as a "Pipe".
+
+Could there be a "PipeOrTunnel" boolean added?

@@ -41,11 +41,11 @@ func main() {
 		}}
 
 	// Generate the L-system string
-	snowflake := lsys.GenLString3D(hilbert, 3)
-	fmt.Println(snowflake)
+	lstring := lsys.GenLString3D(hilbert, 3)
+	//fmt.Println(lstring)
 
 	// Create first frame
-	floatArray, coordCount := lsys.Lsystem3D(snowflake, hilbert.Angle)
+	floatArray, coordCount := lsys.Lsystem3D(lstring, hilbert.Angle)
 	points := coordCount / 3
 	fmt.Println(floatArray[0], points)
 
@@ -86,11 +86,12 @@ func main() {
 	onResize("", nil)
 
 	// Create a blue torus and add it to the scene
-	geom := geometry.NewTube(vector3s, 0.01, 12, false)
+	geom := geometry.NewTube(vector3s, 0.1, 20, true)
+	//geom := megeometry.MyNewTube(vector3s, 0.1, 20, true)
 	//geom := geometry.NewTube([]math32.Vector3{{X: 0, Y: 0, Z: 0}, {X: 0.5, Y: 0, Z: 0}, {X: 0.5, Y: 0.5, Z: 0}}, 0.2, 12, false)
 	// geom := NewTube(path []math32.Vector3, radius float32, radialSegments int, close bool)
 	//geom := geometry.NewTorus(1, .4, 12, 32, math32.Pi*2)
-	mat := material.NewStandard(math32.NewColor("DarkBlue"))
+	mat := material.NewStandard(math32.NewColor("Grey"))
 	mesh := graphic.NewMesh(geom, mat)
 	scene.Add(mesh)
 
@@ -104,9 +105,9 @@ func main() {
 	scene.Add(btn)
 
 	// Create and add lights to the scene
-	scene.Add(light.NewAmbient(&math32.Color{R: 1.0, G: 1.0, B: 1.0}, 0.8))
+	scene.Add(light.NewAmbient(&math32.Color{R: 1.0, G: 1.0, B: 1.0}, 0.2))
 	pointLight := light.NewPoint(&math32.Color{R: 1, G: 1, B: 1}, 5.0)
-	pointLight.SetPosition(1, 0, 2)
+	pointLight.SetPosition(3, 6, 3)
 	scene.Add(pointLight)
 
 	// Create and add an axis helper to the scene
@@ -117,9 +118,11 @@ func main() {
 
 	// Run the application
 	a.Run(func(renderer *renderer.Renderer, deltaTime time.Duration) {
-		a.Gls().FrontFace(gls.CCW)
-		a.Gls().CullFace(gls.FRONT)
-		a.Gls().Clear(gls.DEPTH_BUFFER_BIT | gls.STENCIL_BUFFER_BIT | gls.COLOR_BUFFER_BIT)
+		//a.Gls().FrontFace(gls.CW)
+		a.Gls().Disable(gls.CULL_FACE)
+		//a.Gls().CullFace(gls.FRONT)
+		a.Gls().Clear(gls.DEPTH_BUFFER_BIT | gls.COLOR_BUFFER_BIT)
+		//a.Gls().Clear(gls.DEPTH_BUFFER_BIT | gls.STENCIL_BUFFER_BIT | gls.COLOR_BUFFER_BIT)
 		renderer.Render(scene, cam)
 	})
 }

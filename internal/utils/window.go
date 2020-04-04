@@ -8,6 +8,11 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
+// GraphicsCardName GraphicsCardName
+func GraphicsCardName() string {
+	return gl.GoStr(gl.GetString(gl.RENDERER))
+}
+
 //CreateWindow You've guessed it!
 func CreateWindow(title string, width, height int) *glfw.Window {
 	if !(width != 0 && height != 0) {
@@ -38,4 +43,23 @@ func CreateWindow(title string, width, height int) *glfw.Window {
 	}
 
 	return win
+}
+
+// FullScreen FullScreen
+func FullScreen() (*glfw.Window, *Camera) {
+		// Camera and Sceen choices (width, height, aspect ratio)
+		monitor := glfw.GetPrimaryMonitor()
+		vidMode := monitor.GetVideoMode()
+	
+		// Set the camera aspect to the screen aspect
+		cam := Cam()
+		cam.Aspect = float32(vidMode.Width) / float32(vidMode.Height)
+	
+		// Print some info
+		fmt.Println(vidMode.Width, "x ", vidMode.Height)
+		fmt.Println("cam.Aspect", cam.Aspect)
+	
+		// Create a window
+		win := CreateWindow(os.Args[0], vidMode.Width, vidMode.Height)
+		return win, cam
 }

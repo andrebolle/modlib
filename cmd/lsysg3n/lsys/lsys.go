@@ -48,7 +48,7 @@ func Lsystem3D(lString string, angle float64) (*[coordMax3D]float32, int) {
 		direction: mgl32.Vec3{0, 1, 0},
 		right:     mgl32.Vec3{1, 0, 0},
 		heading:   0,
-		d:         0.1,
+		d:         0.9,
 		theta:     angle}
 
 	tally := 0

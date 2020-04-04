@@ -124,7 +124,7 @@ func main() {
 	for !win.ShouldClose() {
 
 		// Update the View Transform, because the Camera may have moved
-		view := mgl32.LookAtV(cam.Position, cam.Position.Add(cam.Direction), cam.Up)
+		view := mgl32.LookAtV(cam.Position, cam.Position.Add(cam.Forward), cam.Up)
 		gl.UniformMatrix4fv(viewLocation, 1, false, &view[0])
 
 		// Set Clear gl.COLOR_BUFFER_BIT and gl.DEPTH_BUFFER_BIT as required

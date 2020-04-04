@@ -31,7 +31,7 @@ func main() {
 	win := utils.CreateWindow("Triangles", 800, 600)
 
 	// Create and install(Use) a shader
-	program, _ := utils.CreateVF(utils.VertexShader, utils.FragmentShader)
+	program, _ := utils.CreateVF(BasicVS, BasicFS)
 	defer gl.DeleteProgram(program)
 	gl.UseProgram(program)
 
@@ -48,7 +48,7 @@ func main() {
 	// copy "size" bytes (all) of vertices to (ARRAY) buffer
 	gl.BufferData(gl.ARRAY_BUFFER, int(unsafe.Sizeof(vertices)), unsafe.Pointer(&vertices), gl.STATIC_DRAW)
 
-	shaderLocation := uint32(gl.GetAttribLocation(program, gl.Str("position\x00")))
+	shaderLocation := uint32(gl.GetAttribLocation(program, gl.Str("pos\x00")))
 	gl.VertexAttribPointer(shaderLocation, 2, gl.FLOAT, false, 0, gl.PtrOffset(0))
 	gl.EnableVertexAttribArray(shaderLocation)
 	// ----------------------------------------------
