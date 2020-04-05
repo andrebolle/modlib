@@ -1,11 +1,11 @@
 // Window, Camera
 // Program
-// Get Locations
-// Bind Locations
+// Get and Bind Locations
+// LoadTexture, ActiveTexture, BindTexture
 // The Vertices
 // VAO - Gen and Bind
 // Buffers: Gen, Bind, VertexAttribPointer, EnableVertexAttribArray, BufferData
 // Pre Draw Setup
 // Main Draw Loop
-    // Update the View Transform, because the Camera may have moved
+	// Update the View Transform, because the Camera/Model may have moved
     // Clear, Draw, Swap, Poll
