@@ -7,7 +7,6 @@ package main
 
 import (
 	_ "image/png"
-	"log"
 
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -18,7 +17,7 @@ import (
 func main() {
 
 	// Window, Camera
-	window, cam := utils.GetWindowAndCamera()
+	window, cam := utils.GetWindowAndCamera(800, 600)
 	defer window.Destroy()
 
 	// Program
@@ -46,7 +45,7 @@ func main() {
 	// LoadTexture, ActiveTexture, BindTexture
 	texture, err := utils.LoadTexture("square.png")
 	if err != nil {
-		log.Fatalln(err)
+		panic(err)
 	}
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindTexture(gl.TEXTURE_2D, texture)
@@ -73,7 +72,7 @@ func main() {
 	// Pre Draw Setup
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LESS)
-	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
+	gl.ClearColor(0, 0, 0, 1.0)
 
 	angle := 0.0
 	previousTime := glfw.GetTime()

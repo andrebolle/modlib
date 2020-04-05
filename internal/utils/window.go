@@ -47,26 +47,17 @@ func CreateWindow(title string, width, height int) *glfw.Window {
 }
 
 // FullScreen FullScreen
-func FullScreen() (*glfw.Window, *Camera) {
+func FullScreen() (int, int) {
+
 	// Camera and Sceen choices (width, height, aspect ratio)
 	monitor := glfw.GetPrimaryMonitor()
 	vidMode := monitor.GetVideoMode()
 
-	// Set the camera aspect to the screen aspect
-	cam := Cam()
-	cam.Aspect = float32(vidMode.Width) / float32(vidMode.Height)
-
-	// Print some info
-	fmt.Println(vidMode.Width, "x ", vidMode.Height)
-	fmt.Println("cam.Aspect", cam.Aspect)
-
-	// Create a window
-	win := CreateWindow(os.Args[0], vidMode.Width, vidMode.Height)
-	return win, cam
+	return vidMode.Width, vidMode.Height
 }
 
 // GetWindowAndCamera Boilerplate. LockOSThread, GLFW, Window & Callbacks
-func GetWindowAndCamera() (*glfw.Window, *Camera) {
+func GetWindowAndCamera(width int, height int) (*glfw.Window, *Camera) {
 	// Lock this calling goroutine to its current operating system thread.
 	runtime.LockOSThread()
 
@@ -75,8 +66,20 @@ func GetWindowAndCamera() (*glfw.Window, *Camera) {
 		panic(fmt.Errorf("I could not initialize glfw: %v", err))
 	}
 
-	// Create Window and OpenGL context
-	win, cam := FullScreen()
+	if width == 0 || height == 0 {
+		width, height = FullScreen()
+	}
+
+	// Set the camera aspect to the screen aspect
+	cam := Cam()
+	cam.Aspect = float32(width) / float32(height)
+
+	// Print some info
+	fmt.Println(width, "x ", height)
+	fmt.Println("cam.Aspect", cam.Aspect)
+
+	// Create a window
+	win := CreateWindow(os.Args[0], width, height)
 
 	// Print any useful info/help.
 	fmt.Println(GraphicsCardName())
