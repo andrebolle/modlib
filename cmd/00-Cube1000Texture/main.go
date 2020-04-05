@@ -10,31 +10,7 @@ import (
 	"github.com/purelazy/modlib/internal/utils"
 )
 
-func main() {
-
-	// Window, Camera
-	win, cam := utils.GetWindowAndCamera()
-	defer win.Destroy()
-
-	// Program
-	program, _ := utils.CreateVF(utils.ReadShader("colourMVP.vs.glsl"), utils.ReadShader("colourMVP.fs.glsl"))
-	defer gl.DeleteProgram(program)
-	gl.UseProgram(program)
-
-	// Get Locations
-	modelLocation := gl.GetUniformLocation(program, gl.Str("model\x00"))
-	viewLocation := gl.GetUniformLocation(program, gl.Str("view\x00"))
-	projectionLocation := gl.GetUniformLocation(program, gl.Str("projection\x00"))
-	positionLocation := uint32(gl.GetAttribLocation(program, gl.Str("position\x00")))
-	colourLocation := uint32(gl.GetAttribLocation(program, gl.Str("colour\x00")))
-
-	// Bind Locations
-	model := mgl32.Ident4()
-	gl.UniformMatrix4fv(modelLocation, 1, false, &model[0])
-	projection := mgl32.Perspective(cam.Fovy, cam.Aspect, cam.Near, cam.Far)
-	gl.UniformMatrix4fv(projectionLocation, 1, false, &projection[0])
-
-	// The Vertices
+func generateVertices() ([]float32, []float32) {
 	cubes := make([]float32, 0)
 	colours := make([]float32, 0)
 
@@ -65,6 +41,35 @@ func main() {
 			}
 		}
 	}
+	return cubes, colours
+}
+
+func main() {
+
+	// Window, Camera
+	win, cam := utils.GetWindowAndCamera()
+	defer win.Destroy()
+
+	// Program
+	program, _ := utils.CreateVF(utils.ReadShader("colourMVP.vs.glsl"), utils.ReadShader("colourMVP.fs.glsl"))
+	defer gl.DeleteProgram(program)
+	gl.UseProgram(program)
+
+	// Get Locations
+	modelLocation := gl.GetUniformLocation(program, gl.Str("model\x00"))
+	viewLocation := gl.GetUniformLocation(program, gl.Str("view\x00"))
+	projectionLocation := gl.GetUniformLocation(program, gl.Str("projection\x00"))
+	positionLocation := uint32(gl.GetAttribLocation(program, gl.Str("position\x00")))
+	colourLocation := uint32(gl.GetAttribLocation(program, gl.Str("colour\x00")))
+
+	// Bind Locations
+	model := mgl32.Ident4()
+	gl.UniformMatrix4fv(modelLocation, 1, false, &model[0])
+	projection := mgl32.Perspective(cam.Fovy, cam.Aspect, cam.Near, cam.Far)
+	gl.UniformMatrix4fv(projectionLocation, 1, false, &projection[0])
+
+	// The Vertices
+	cubes, colours := generateVertices()
 
 	// VAO - Gen and Bind
 	var array uint32

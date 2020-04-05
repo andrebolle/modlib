@@ -9,27 +9,19 @@ import (
 	"github.com/go-gl/gl/v4.6-core/gl"
 )
 
-//LoadTexture You've guessed it!
+// LoadTexture LoadTexture
 func LoadTexture(file string) (uint32, error) {
 	imgFile, err := os.Open(file)
 	if err != nil {
-		return 0, fmt.Errorf("Texture %q was not found on the disk: %v", file, err)
+		return 0, fmt.Errorf("texture %q not found on disk: %v", file, err)
 	}
 	img, formatName, err := image.Decode(imgFile)
 	if err != nil {
 		return 0, err
 	}
 
-	fmt.Println("The image format is", formatName)
-	fmt.Println("The image bounds are", img.Bounds())
-
-	//              |
-	// +-------------------------+
-	// |                         |
-	// |    Convert the Image    |
-	// |                         |
-	// +-------------------------+
-	//              |
+	fmt.Println("Image format is", formatName)
+	fmt.Println("Image Bounds is", img.Bounds())
 
 	rgba := image.NewRGBA(img.Bounds())
 	if rgba.Stride != rgba.Rect.Size().X*4 {

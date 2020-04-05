@@ -38,9 +38,10 @@ func main() {
 	cubes := make([]float32, 0)
 	colours := make([]float32, 0)
 
-	for z := 0; z < 10; z++ {
-		for y := 0; y < 10; y++ {
-			for x := 0; x < 10; x++ {
+	gridSize := 30
+	for z := -gridSize; z < gridSize; z++ {
+		for y := -gridSize; y < gridSize; y++ {
+			for x := -gridSize; x < gridSize; x++ {
 				// Copy the cube (transforming the vertices)
 				for i := 0; i < len(utils.Cube); i += 3 {
 					// Shift to the right
@@ -90,8 +91,8 @@ func main() {
 
 	// Pre Draw Setup
 	gl.ClearColor(0, 0, 0.2, 1.0)
-	gl.Enable(gl.DEPTH_TEST)
-	gl.DepthFunc(gl.LESS)
+	// gl.Enable(gl.DEPTH_TEST)
+	// gl.DepthFunc(gl.LESS)
 
 	// Main Draw Loop
 	for !win.ShouldClose() {
@@ -101,7 +102,8 @@ func main() {
 		gl.UniformMatrix4fv(viewLocation, 1, false, &view[0])
 
 		// Clear, Draw, Swap, Poll
-		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+		//gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+		gl.Clear(gl.COLOR_BUFFER_BIT)
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(cubes)))
 		win.SwapBuffers()
 		glfw.PollEvents()
