@@ -29,10 +29,19 @@ func LoadTexture(file string) (uint32, error) {
 	}
 	draw.Draw(rgba, rgba.Bounds(), img, image.Point{0, 0}, draw.Src)
 
-	var texture uint32
-	gl.GenTextures(1, &texture)
+	// A texture object is a data structure that contains the color data
+	// for an image texture, and possibly for a set of mipmaps for the texture,
+	// as well as the values of texture properties such as the minification
+	// and magnification filters and the texture repeat mode.
+
+	// Create a Texture Object
+	var textureObject uint32
+	gl.GenTextures(1, &textureObject)
+	// Initially, texture unit number 0 is active.
 	gl.ActiveTexture(gl.TEXTURE0)
-	gl.BindTexture(gl.TEXTURE_2D, texture)
+	// Binding to a target (2D) allows us to set the attributes of textureObject
+	gl.BindTexture(gl.TEXTURE_2D, textureObject)
+	// Define filter, wrap and image
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
@@ -48,5 +57,5 @@ func LoadTexture(file string) (uint32, error) {
 		gl.UNSIGNED_BYTE,
 		gl.Ptr(rgba.Pix))
 
-	return texture, nil
+	return textureObject, nil
 }

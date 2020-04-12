@@ -9,10 +9,62 @@ import (
 	"github.com/purelazy/modlib/internal/utils"
 )
 
+// The Vertices
+// The array of Vertices
+var cube = []float32{
+	// Bottom
+	-1.0, -1.0, -1.0,
+	1.0, -1.0, -1.0,
+	-1.0, -1.0, 1.0,
+	1.0, -1.0, -1.0,
+	1.0, -1.0, 1.0,
+	-1.0, -1.0, 1.0,
+
+	// Top
+	-1.0, 1.0, -1.0,
+	-1.0, 1.0, 1.0,
+	1.0, 1.0, -1.0,
+	1.0, 1.0, -1.0,
+	-1.0, 1.0, 1.0,
+	1.0, 1.0, 1.0,
+
+	// Front
+	-1.0, -1.0, 1.0,
+	1.0, -1.0, 1.0,
+	-1.0, 1.0, 1.0,
+	1.0, -1.0, 1.0,
+	1.0, 1.0, 1.0,
+	-1.0, 1.0, 1.0,
+
+	// Back
+	-1.0, -1.0, -1.0,
+	-1.0, 1.0, -1.0,
+	1.0, -1.0, -1.0,
+	1.0, -1.0, -1.0,
+	-1.0, 1.0, -1.0,
+	1.0, 1.0, -1.0,
+
+	// Left
+	-1.0, -1.0, 1.0,
+	-1.0, 1.0, -1.0,
+	-1.0, -1.0, -1.0,
+	-1.0, -1.0, 1.0,
+	-1.0, 1.0, 1.0,
+	-1.0, 1.0, -1.0,
+
+	// Right
+	1.0, -1.0, 1.0,
+	1.0, -1.0, -1.0,
+	1.0, 1.0, -1.0,
+	1.0, -1.0, 1.0,
+	1.0, 1.0, -1.0,
+	1.0, 1.0, 1.0,
+}
+
 func main() {
 
 	// Window, Camera
-	win, cam := utils.GetWindowAndCamera()
+	win, cam := utils.GetWindowAndCamera(800, 600)
 	defer win.Destroy()
 
 	// Program
@@ -32,58 +84,6 @@ func main() {
 	projection := mgl32.Perspective(cam.Fovy, cam.Aspect, cam.Near, cam.Far)
 	gl.UniformMatrix4fv(projectionLocation, 1, false, &projection[0])
 
-	// The Vertices
-	// The array of Vertices
-	var cube = []float32{
-		// Bottom
-		-1.0, -1.0, -1.0,
-		1.0, -1.0, -1.0,
-		-1.0, -1.0, 1.0,
-		1.0, -1.0, -1.0,
-		1.0, -1.0, 1.0,
-		-1.0, -1.0, 1.0,
-
-		// Top
-		-1.0, 1.0, -1.0,
-		-1.0, 1.0, 1.0,
-		1.0, 1.0, -1.0,
-		1.0, 1.0, -1.0,
-		-1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-
-		// Front
-		-1.0, -1.0, 1.0,
-		1.0, -1.0, 1.0,
-		-1.0, 1.0, 1.0,
-		1.0, -1.0, 1.0,
-		1.0, 1.0, 1.0,
-		-1.0, 1.0, 1.0,
-
-		// Back
-		-1.0, -1.0, -1.0,
-		-1.0, 1.0, -1.0,
-		1.0, -1.0, -1.0,
-		1.0, -1.0, -1.0,
-		-1.0, 1.0, -1.0,
-		1.0, 1.0, -1.0,
-
-		// Left
-		-1.0, -1.0, 1.0,
-		-1.0, 1.0, -1.0,
-		-1.0, -1.0, -1.0,
-		-1.0, -1.0, 1.0,
-		-1.0, 1.0, 1.0,
-		-1.0, 1.0, -1.0,
-
-		// Right
-		1.0, -1.0, 1.0,
-		1.0, -1.0, -1.0,
-		1.0, 1.0, -1.0,
-		1.0, -1.0, 1.0,
-		1.0, 1.0, -1.0,
-		1.0, 1.0, 1.0,
-	}
-
 	// VAO - Gen and Bind
 	var array uint32
 	gl.GenVertexArrays(1, &array)
@@ -97,7 +97,7 @@ func main() {
 	gl.EnableVertexAttribArray(positionLocation)
 	gl.BufferData(gl.ARRAY_BUFFER, len(cube)*4, unsafe.Pointer(&cube[0]), gl.STATIC_DRAW)
 
-	// Pre Draw Setup
+	// Clear, Depth
 	gl.ClearColor(0, 0, 0.2, 1.0)
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LESS)
