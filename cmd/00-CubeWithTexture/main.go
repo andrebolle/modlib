@@ -63,6 +63,9 @@ func main() {
 		panic(err)
 	}
 
+	// The Vertices
+	// Pre-generated. (utils.CubeUV used directly in BufferData)
+
 	// VAO - Gen and Bind
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
