@@ -65,7 +65,7 @@ func main() {
 	}
 
 	// The Vertices
-	floats, indices, stride, posOffset, texOffset, _ := OJBLoader("cube.obj")
+	floats, indices, stride, posOffset, texOffset, _ := OJBLoader("suzanne.obj")
 
 	// Vertex Array Object
 	var vao uint32
@@ -116,7 +116,7 @@ func main() {
 		// Clear, Draw, Swap, Poll
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		//gl.DrawArrays(gl.TRIANGLES, 0, 6*2*3)
-		gl.DrawElements(gl.TRIANGLES, 3*2*6, gl.UNSIGNED_INT, gl.PtrOffset(0))
+		gl.DrawElements(gl.TRIANGLES, 2904, gl.UNSIGNED_INT, gl.PtrOffset(0))
 		//gl.DrawElements(gl.TRIANGLES, 3, gl.UNSIGNED_INT, unsafe.Pointer())
 		window.SwapBuffers()
 		glfw.PollEvents()
