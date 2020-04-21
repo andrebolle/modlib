@@ -1,5 +1,7 @@
 package utils
 
+// https://github.com/SonarSystems/Modern-OpenGL-Tutorials/blob/master/%5BADVANCED%20OPENGL%5D/%5B17%5D%20Cubemap:Skybox/main.cpp
+
 import (
 	"fmt"
 	"image"
