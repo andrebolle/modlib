@@ -21,8 +21,10 @@ func (*VAO) Attribute(program uint32, name string, size int32, xtype uint32, nor
 }
 
 // NewArray NewArray
-func NewArray(vao *VAO) {
+func NewArray() VAO {
+	var vao VAO
 	gl.GenVertexArrays(1, &vao.id)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vao.id)
 	vao.bound = true
+	return vao
 }

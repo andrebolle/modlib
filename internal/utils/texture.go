@@ -13,10 +13,10 @@ import (
 
 // Texture Texture
 type Texture struct {
-	ID      uint32
-	Width   int32
-	Height  int32
-	Texture []uint8
+	ID     uint32
+	Width  int32
+	Height int32
+	RGBA   *image.RGBA
 }
 
 // LoadRGBA LoadRGBA
@@ -49,21 +49,20 @@ func LoadRGBA(file string) *image.RGBA {
 }
 
 // NewTexture NewTexture
-func NewTexture(tex *Texture, file string) {
-
-	rgba := LoadRGBA(file)
-	tex.Texture = rgba.Pix
-	tex.Width = int32(rgba.Rect.Size().X)
-	tex.Height = int32(rgba.Rect.Size().Y)
-	tex.Texture = rgba.Pix
+func NewTexture(file string) Texture {
+	var tex Texture
+	tex.RGBA = LoadRGBA(file)
+	tex.Width = int32(tex.RGBA.Rect.Size().X)
+	tex.Height = int32(tex.RGBA.Rect.Size().Y)
 
 	gl.GenTextures(1, &tex.ID)
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindTexture(gl.TEXTURE_2D, tex.ID)
 
+	// Set basic filter and wrap values
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-
+	return tex
 }

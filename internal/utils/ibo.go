@@ -12,8 +12,10 @@ type IBO struct {
 }
 
 // NewIndices NewIndices
-func NewIndices(ibo *IBO, indices *[]uint32) {
+func NewIndices(indices *[]uint32) IBO {
+	var ibo IBO
 	gl.GenBuffers(1, &ibo.id)
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo.id)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(*indices)*4, unsafe.Pointer(&(*indices)[0]), gl.STATIC_DRAW)
+	return ibo
 }

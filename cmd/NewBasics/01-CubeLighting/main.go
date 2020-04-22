@@ -1,8 +1,3 @@
-// Copyright 2014 The go-gl Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
-// Renders a textured spinning cube using GLFW 3 and OpenGL 4.1 core forward-compatible profile.
 package main
 
 import (
@@ -21,7 +16,6 @@ func main() {
 	defer window.Destroy()
 
 	// Object Data
-	//floats, indices, stride, posOffset, texOffset, _ := OJBLoader("cube.obj")
 	floats, indices, stride, posOffset, texOffset, normOffset := OJBLoader("suzanne.obj")
 
 	// Program, Vertex, Buffer, Index and Texture objects
@@ -29,46 +23,34 @@ func main() {
 	defer gl.DeleteProgram(program)
 	gl.UseProgram(program)
 
-	vao := new(utils.VAO)
-	utils.NewArray(vao)
+	// Create Array, Buffer, Index Buffer, Texture
+	vao := utils.NewArray()
+	utils.NewBuffer(floats)
+	utils.NewIndices(indices)
 
-	vbo := new(utils.VBO)
-	utils.NewBuffer(vbo, floats)
+	tex := utils.NewTexture("square.png")
 
-	ibo := new(utils.IBO)
-	utils.NewIndices(ibo, indices)
-
-	tex := new(utils.Texture)
-	utils.NewTexture(tex, "square.png")
-	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, tex.Width, tex.Height, 0, gl.RGBA, gl.UNSIGNED_BYTE, gl.Ptr(tex.Texture))
+	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, tex.Width, tex.Height, 0, gl.RGBA, gl.UNSIGNED_BYTE, gl.Ptr(tex.RGBA.Pix))
 
 	// Attributes
 	vao.Attribute(program, "aPos", 3, gl.FLOAT, false, int32(stride), gl.PtrOffset(posOffset))
 	vao.Attribute(program, "aUV", 2, gl.FLOAT, false, int32(stride), gl.PtrOffset(texOffset))
 	vao.Attribute(program, "aNormal", 3, gl.FLOAT, false, int32(stride), gl.PtrOffset(normOffset))
 
-	// normalAttrib := uint32(gl.GetAttribLocation(program, gl.Str("aNormal\x00")))
-	// gl.EnableVertexAttribArray(normalAttrib)
-	// gl.VertexAttribPointer(normalAttrib, 3, gl.FLOAT, false, int32(stride), gl.PtrOffset(normOffset))
-
 	// Uniforms
 	// Projection
 	projection := mgl32.Perspective(cam.Fovy, cam.Aspect, cam.Near, cam.Far)
 	utils.SetUniformMat4(program, "uProjection", &projection[0])
-	// Sampler/Texture Unit
+
+	// Texture
 	textureLocation := gl.GetUniformLocation(program, gl.Str("uTex\x00"))
 	gl.Uniform1i(textureLocation, 0)
 
+	// Lighting
 	lightColor := mgl32.Vec3{1, 1, 1}
-	lightColourUniform := gl.GetUniformLocation(program, gl.Str("uLightColor\x00"))
-	gl.Uniform3fv(lightColourUniform, 1, &lightColor[0])
-
+	utils.SetUniformVec3(program, "uLightColor", &lightColor[0])
 	lightPos := mgl32.Vec3{3, 3, 3}
-	lightPosUniform := gl.GetUniformLocation(program, gl.Str("uLightPos\x00"))
-	gl.Uniform3fv(lightPosUniform, 1, &lightPos[0])
-
-	// viewPosUniform := gl.GetUniformLocation(program, gl.Str("uViewPos\x00"))
-	// gl.Uniform3fv(viewPosUniform, 1, &cam.Position[0])
+	utils.SetUniformVec3(program, "uLightPos", &lightPos[0])
 
 	// Pre Draw Setup
 	gl.Enable(gl.DEPTH_TEST)
@@ -76,16 +58,18 @@ func main() {
 	gl.DepthFunc(gl.LESS)
 	gl.ClearColor(0, 0, 0, 1.0)
 
+	// Rotation angle for animation
 	angle := 0.0
 	previousTime := glfw.GetTime()
 
+	// Render Loop
 	for !window.ShouldClose() {
 
 		// Update the View Transform, because the Camera/Model may have moved
 		time := glfw.GetTime()
 		elapsed := time - previousTime
 		previousTime = time
-		angle += elapsed * 0
+		angle += elapsed * 0.1
 
 		// Update view position, and model and view matrices
 		utils.SetUniformVec3(program, "uViewPos", &cam.Position[0])
