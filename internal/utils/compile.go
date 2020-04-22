@@ -81,3 +81,11 @@ func CreateVF(vertexShaderSource, fragmentShaderSource string) (uint32, error) {
 
 	return program, nil
 }
+
+// SetUniformMat4 SetUniformMat4
+func SetUniformMat4(program uint32, name string, value *float32) (location int32) {
+	//model := mgl32.Ident4()
+	location = gl.GetUniformLocation(program, gl.Str(name+"\x00"))
+	gl.UniformMatrix4fv(location, 1, false, value)
+	return
+}
