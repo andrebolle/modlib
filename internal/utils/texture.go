@@ -14,66 +14,9 @@ import (
 // Texture Texture
 type Texture struct {
 	ID      uint32
-	Width   int
-	Height  int
+	Width   int32
+	Height  int32
 	Texture []uint8
-}
-
-// LoadTexture LoadTexture
-func LoadTexture(file string) (uint32, error) {
-	// Open the file
-	imgFile, err := os.Open(file)
-	if err != nil {
-		return 0, fmt.Errorf("texture %q not found on disk: %v", file, err)
-	}
-
-	// Decode the image
-	img, formatName, err := image.Decode(imgFile)
-	if err != nil {
-		return 0, err
-	}
-
-	fmt.Println("Image format is", formatName)
-	fmt.Println("Image Bounds is", img.Bounds())
-
-	// NewRGBA returns a new RGBA image with the given bounds.
-	rgba := image.NewRGBA(img.Bounds())
-	if rgba.Stride != rgba.Rect.Size().X*4 {
-		return 0, fmt.Errorf("unsupported stride")
-	}
-
-	// Draw calls DrawMask with a nil mask.
-	draw.Draw(rgba, rgba.Bounds(), img, image.Point{0, 0}, draw.Src)
-
-	// A texture object is a data structure that contains the color data
-	// for an image texture, and possibly for a set of mipmaps for the texture,
-	// as well as the values of texture properties such as the minification
-	// and magnification filters and the texture repeat mode.
-
-	// Create a Texture Object
-	var textureObject uint32
-	gl.GenTextures(1, &textureObject)
-	// Initially, texture unit number 0 is active.
-	gl.ActiveTexture(gl.TEXTURE0)
-	// Binding to a target (2D) allows us to set the attributes of textureObject
-	gl.BindTexture(gl.TEXTURE_2D, textureObject)
-	// Define filter, wrap and image
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-	gl.TexImage2D(
-		gl.TEXTURE_2D,
-		0,
-		gl.RGBA,
-		int32(rgba.Rect.Size().X),
-		int32(rgba.Rect.Size().Y),
-		0,
-		gl.RGBA,
-		gl.UNSIGNED_BYTE,
-		gl.Ptr(rgba.Pix))
-
-	return textureObject, nil
 }
 
 // LoadRGBA LoadRGBA
@@ -105,13 +48,13 @@ func LoadRGBA(file string) *image.RGBA {
 	return rgba
 }
 
-// NewTexGenBindData NewTexGenBindData
-func NewTexGenBindData(tex *Texture, file string) {
+// NewTexture NewTexture
+func NewTexture(tex *Texture, file string) {
 
 	rgba := LoadRGBA(file)
 	tex.Texture = rgba.Pix
-	tex.Width = rgba.Rect.Dx()
-	tex.Width = rgba.Rect.Dy()
+	tex.Width = int32(rgba.Rect.Size().X)
+	tex.Height = int32(rgba.Rect.Size().Y)
 	tex.Texture = rgba.Pix
 
 	gl.GenTextures(1, &tex.ID)
@@ -122,14 +65,5 @@ func NewTexGenBindData(tex *Texture, file string) {
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-	gl.TexImage2D(
-		gl.TEXTURE_2D,
-		0,
-		gl.RGBA,
-		int32(rgba.Rect.Size().X),
-		int32(rgba.Rect.Size().Y),
-		0,
-		gl.RGBA,
-		gl.UNSIGNED_BYTE,
-		gl.Ptr(tex.Texture))
+
 }

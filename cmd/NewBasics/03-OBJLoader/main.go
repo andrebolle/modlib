@@ -20,31 +20,32 @@ func main() {
 	window, cam := utils.GetWindowAndCamera(800, 600)
 	defer window.Destroy()
 
-	// Program
-	program, _ := utils.CreateVF(utils.ReadShader("textureMVP.vs.glsl"), utils.ReadShader("textureMVP.fs.glsl"))
-	defer gl.DeleteProgram(program)
-	gl.UseProgram(program)
-
-	// Texture
-	tex := new(utils.Texture)
-	utils.NewTexGenBindData(tex, "square.png")
-
 	// Object Data
 	floats, indices, stride, posOffset, texOffset, _ := OJBLoader("cube.obj")
 
-	// Vertex Info, Data Buffer, Index Buffer objects
-	vao := new(utils.VAO)
-	utils.NewVAOGenBind(vao)
-	vbo := new(utils.VBO)
-	utils.NewVBOGenBindData(vbo, floats)
-	ibo := new(utils.IBO)
-	utils.NewIBOGenBindData(ibo, indices)
+	// Program, Vertex, Buffer, Index and Texture objects
+	program, _ := utils.NewProgram(utils.ReadShader("textureMVP.vs.glsl"), utils.ReadShader("textureMVP.fs.glsl"))
+	defer gl.DeleteProgram(program)
+	gl.UseProgram(program)
 
-	// -------------------- Attributes
+	vao := new(utils.VAO)
+	utils.NewArray(vao)
+
+	vbo := new(utils.VBO)
+	utils.NewBuffer(vbo, floats)
+
+	ibo := new(utils.IBO)
+	utils.NewIndices(ibo, indices)
+
+	tex := new(utils.Texture)
+	utils.NewTexture(tex, "square.png")
+	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, tex.Width, tex.Height, 0, gl.RGBA, gl.UNSIGNED_BYTE, gl.Ptr(tex.Texture))
+
+	// Attributes
 	vao.Attribute(program, "vert", 3, gl.FLOAT, false, int32(stride), gl.PtrOffset(posOffset))
 	vao.Attribute(program, "vertTexCoord", 2, gl.FLOAT, false, int32(stride), gl.PtrOffset(texOffset))
 
-	// -------------------- Uniforms
+	// Uniforms
 	// Model
 	model := mgl32.Ident4()
 	modelLocation := utils.SetUniformMat4(program, "model", &model[0])
@@ -81,7 +82,6 @@ func main() {
 
 		// Clear, Draw, Swap, Poll
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-		//fmt.Println("Elements", len(*indices))
 		gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
 		window.SwapBuffers()
 		glfw.PollEvents()

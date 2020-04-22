@@ -20,8 +20,8 @@ func (*VAO) Attribute(program uint32, name string, size int32, xtype uint32, nor
 	gl.VertexAttribPointer(vertAttrib, 3, gl.FLOAT, false, int32(stride), offset)
 }
 
-// NewVAOGenBind NewVAOGenBind
-func NewVAOGenBind(vao *VAO) {
+// NewArray NewArray
+func NewArray(vao *VAO) {
 	gl.GenVertexArrays(1, &vao.id)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vao.id)
 	vao.bound = true
