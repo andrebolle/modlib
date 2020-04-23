@@ -8,23 +8,23 @@ import (
 
 // VAO Vertex Array Object
 type VAO struct {
-	id       uint32
-	bound    bool
-	drawMode int
+	ID       uint32
+	Bound    bool
+	DrawMode int
 }
 
 // Attribute Attribute
-func (*VAO) Attribute(program uint32, name string, size int32, xtype uint32, normalized bool, stride int32, offset unsafe.Pointer) {
+func Attribute(program uint32, name string, size int32, xtype uint32, normalized bool, stride int32, offset unsafe.Pointer) {
 	vertAttrib := uint32(gl.GetAttribLocation(program, gl.Str(name+"\x00")))
 	gl.EnableVertexAttribArray(vertAttrib)
-	gl.VertexAttribPointer(vertAttrib, 3, gl.FLOAT, false, int32(stride), offset)
+	gl.VertexAttribPointer(vertAttrib, size, gl.FLOAT, false, int32(stride), offset)
 }
 
 // NewArray NewArray
 func NewArray() VAO {
 	var vao VAO
-	gl.GenVertexArrays(1, &vao.id)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vao.id)
-	vao.bound = true
+	gl.GenVertexArrays(1, &vao.ID)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vao.ID)
+	vao.Bound = true
 	return vao
 }

@@ -6,7 +6,6 @@
 package main
 
 import (
-	"fmt"
 	_ "image/png"
 	"unsafe"
 
@@ -18,70 +17,49 @@ import (
 
 func main() {
 
+	// The Vertices
+	floats, indices, stride, posOffset, texOffset, normOffset := OJBLoader("suzanne.obj")
+
 	// Window, Camera
 	window, cam := utils.GetWindowAndCamera(800, 600)
 	defer window.Destroy()
 
-	// Let's see the number of textures that can be accessed by the fragment shader.
-	var textureUnits int32
-
-	gl.GetIntegerv(gl.MAX_TEXTURE_IMAGE_UNITS, &textureUnits)
-	fmt.Println("Texture units for Fragment Shader", textureUnits)
-	gl.GetIntegerv(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS, &textureUnits)
-	fmt.Println("MAX_COMBINED Texture units", textureUnits)
-
 	// Program
-	vs := utils.ReadShader("NormSpec.vs.glsl")
-	fs := utils.ReadShader("NormSpec.fs.glsl")
-	program, _ := utils.CreateVF(vs, fs)
-	defer gl.DeleteProgram(program)
-	gl.UseProgram(program)
+	lighting := utils.NewProgram(utils.ReadShader("Lighting.vs.glsl"), utils.ReadShader("Lighting.fs.glsl"))
+	defer gl.DeleteProgram(lighting)
+	gl.UseProgram(lighting)
 
-	// Get uniform locations using GetUniformLocation
-	// Bind using UniformMatrix4fv, Uniform1i
-	// Model
-	model := mgl32.Ident4()
-	modelUniform := gl.GetUniformLocation(program, gl.Str("model\x00"))
-	gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+	// Vertex Attribute locations
+	aPosLocation := uint32(gl.GetAttribLocation(lighting, gl.Str("aPos\x00")))
+	aUVLocation := uint32(gl.GetAttribLocation(lighting, gl.Str("aUV\x00")))
+	aNormalLocation := uint32(gl.GetAttribLocation(lighting, gl.Str("aNormal\x00")))
 
-	// View gets updated in the main loop
-	cameraUniform := gl.GetUniformLocation(program, gl.Str("view\x00"))
+	// Retrieve uniform locations
+	uModelLocation := gl.GetUniformLocation(lighting, gl.Str("uModel\x00"))
+	uViewLocation := gl.GetUniformLocation(lighting, gl.Str("uView\x00"))
+	uProjectionLocation := gl.GetUniformLocation(lighting, gl.Str("uProjection\x00"))
+	uTexLocation := gl.GetUniformLocation(lighting, gl.Str("uTex\x00"))
+	uViewPosLocation := gl.GetUniformLocation(lighting, gl.Str("uViewPos\x00"))
+	uLightColourLocation := gl.GetUniformLocation(lighting, gl.Str("uLightColor\x00"))
+	uLightPosLocation := gl.GetUniformLocation(lighting, gl.Str("uLightPos\x00"))
 
-	// Perspective
+	// Static uniforms
 	projection := mgl32.Perspective(cam.Fovy, cam.Aspect, cam.Near, cam.Far)
-	projectionUniform := gl.GetUniformLocation(program, gl.Str("projection\x00"))
-	gl.UniformMatrix4fv(projectionUniform, 1, false, &projection[0])
-
-	// Texture
-	textureUniform := gl.GetUniformLocation(program, gl.Str("tex\x00"))
-	// The value of a sampler variable is a reference to a texture unit.
-	const textureUnitObject int32 = 0
-	gl.Uniform1i(textureUniform, textureUnitObject)
+	gl.UniformMatrix4fv(uProjectionLocation, 1, false, &projection[0])
+	gl.Uniform1i(uTexLocation, 0)
 
 	lightColor := mgl32.Vec3{1, 1, 1}
-	lightColourUniform := gl.GetUniformLocation(program, gl.Str("lightColor\x00"))
-	gl.Uniform3fv(lightColourUniform, 1, &lightColor[0])
+	gl.Uniform3fv(uLightColourLocation, 1, &lightColor[0])
 
 	lightPos := mgl32.Vec3{3, 3, 3}
-	lightPosUniform := gl.GetUniformLocation(program, gl.Str("lightPos\x00"))
-	gl.Uniform3fv(lightPosUniform, 1, &lightPos[0])
+	gl.Uniform3fv(uLightPosLocation, 1, &lightPos[0])
 
-	viewPosUniform := gl.GetUniformLocation(program, gl.Str("viewPos\x00"))
-	gl.Uniform3fv(viewPosUniform, 1, &cam.Position[0])
-
-	// Andre is here
-	// lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-	// lightingShader.setVec3("lightPos", lightPos);
-	// lightingShader.setVec3("viewPos", camera.Position);
+	gl.Uniform3fv(uViewPosLocation, 1, &cam.Position[0])
 
 	// LoadTexture
-	_, err := utils.LoadTexture("square.png")
-	if err != nil {
-		panic(err)
-	}
-
-	// The Vertices
-	floats, indices, stride, posOffset, texOffset, normOffset := OJBLoader("suzanne.obj")
+	texture := utils.NewTexture("square.png")
+	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, texture.Width,
+		texture.Height, 0, gl.RGBA, gl.UNSIGNED_BYTE, unsafe.Pointer(&texture.RGBA.Pix[0]))
 
 	// Vertex Array Object
 	var vao uint32
@@ -100,17 +78,14 @@ func main() {
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(*indices)*4, unsafe.Pointer(&(*indices)[0]), gl.STATIC_DRAW)
 
-	vertAttrib := uint32(gl.GetAttribLocation(program, gl.Str("aPos\x00")))
-	gl.EnableVertexAttribArray(vertAttrib)
-	gl.VertexAttribPointer(vertAttrib, 3, gl.FLOAT, false, int32(stride), gl.PtrOffset(posOffset))
+	gl.EnableVertexAttribArray(aPosLocation)
+	gl.VertexAttribPointer(aPosLocation, 3, gl.FLOAT, false, int32(stride), gl.PtrOffset(posOffset))
 
-	texCoordAttrib := uint32(gl.GetAttribLocation(program, gl.Str("aUV\x00")))
-	gl.EnableVertexAttribArray(texCoordAttrib)
-	gl.VertexAttribPointer(texCoordAttrib, 2, gl.FLOAT, false, int32(stride), gl.PtrOffset(texOffset))
+	gl.EnableVertexAttribArray(aUVLocation)
+	gl.VertexAttribPointer(aUVLocation, 2, gl.FLOAT, false, int32(stride), gl.PtrOffset(texOffset))
 
-	normalAttrib := uint32(gl.GetAttribLocation(program, gl.Str("aNormal\x00")))
-	gl.EnableVertexAttribArray(normalAttrib)
-	gl.VertexAttribPointer(normalAttrib, 3, gl.FLOAT, false, int32(stride), gl.PtrOffset(normOffset))
+	gl.EnableVertexAttribArray(aNormalLocation)
+	gl.VertexAttribPointer(aNormalLocation, 3, gl.FLOAT, false, int32(stride), gl.PtrOffset(normOffset))
 
 	// Pre Draw Setup
 	gl.Enable(gl.DEPTH_TEST)
@@ -127,11 +102,11 @@ func main() {
 		elapsed := time - previousTime
 		previousTime = time
 		angle += elapsed
-		model = mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
+		model := mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
 		view := mgl32.LookAtV(cam.Position, cam.Position.Add(cam.Forward), cam.Up)
 
-		gl.UniformMatrix4fv(cameraUniform, 1, false, &view[0])
-		gl.UniformMatrix4fv(modelUniform, 1, false, &model[0])
+		gl.UniformMatrix4fv(uViewLocation, 1, false, &view[0])
+		gl.UniformMatrix4fv(uModelLocation, 1, false, &model[0])
 
 		// Clear, Draw, Swap, Poll
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
