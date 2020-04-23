@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"image"
 	"image/draw"
+
+	// Required in order to use jpeg files.
+	_ "image/jpeg"
 	"os"
 
 	"github.com/go-gl/gl/v4.6-core/gl"
@@ -33,6 +36,7 @@ func LoadRGBA(file string) *image.RGBA {
 		panic(err)
 	}
 
+	fmt.Println("Image Filename:", file)
 	fmt.Println("Image format is", formatName)
 	fmt.Println("Image Bounds is", img.Bounds())
 

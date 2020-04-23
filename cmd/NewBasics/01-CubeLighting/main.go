@@ -11,15 +11,15 @@ import (
 
 func main() {
 
+	// Model Data
+	floats, indices, stride, posOffset, texOffset, normOffset := OJBLoader("suzanne.obj")
+
 	// Window, Camera
 	window, cam := utils.GetWindowAndCamera(800, 600)
 	defer window.Destroy()
 
-	// Object Data
-	floats, indices, stride, posOffset, texOffset, normOffset := OJBLoader("suzanne.obj")
-
-	// Program, Vertex, Buffer, Index and Texture objects
-	program, _ := utils.NewProgram(utils.ReadShader("NormSpec.vs.glsl"), utils.ReadShader("NormSpec.fs.glsl"))
+	// Program
+	program := utils.NewProgram(utils.ReadShader("Lighting.vs.glsl"), utils.ReadShader("Lighting.fs.glsl"))
 	defer gl.DeleteProgram(program)
 	gl.UseProgram(program)
 
@@ -27,9 +27,7 @@ func main() {
 	vao := utils.NewArray()
 	utils.NewBuffer(floats)
 	utils.NewIndices(indices)
-
 	tex := utils.NewTexture("square.png")
-
 	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, tex.Width, tex.Height, 0, gl.RGBA, gl.UNSIGNED_BYTE, gl.Ptr(tex.RGBA.Pix))
 
 	// Attributes
@@ -65,7 +63,7 @@ func main() {
 	// Render Loop
 	for !window.ShouldClose() {
 
-		// Update the View Transform, because the Camera/Model may have moved
+		// Update the rotation angle
 		time := glfw.GetTime()
 		elapsed := time - previousTime
 		previousTime = time

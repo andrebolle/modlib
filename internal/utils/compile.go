@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/go-gl/gl/v4.6-core/gl"
@@ -42,12 +43,12 @@ func Compile(source string, shaderType uint32) (uint32, error) {
 }
 
 // NewProgram Create a Vertex --> Fragment shader
-func NewProgram(vertexShaderSource, fragmentShaderSource string) (uint32, error) {
+func NewProgram(vertexShaderSource, fragmentShaderSource string) uint32 {
 	vertexShader, err := Compile(vertexShaderSource, gl.VERTEX_SHADER)
 	if err != nil {
 		fmt.Println("Vertex shader did not compile")
 		fmt.Println(err)
-		return 0, err
+		panic(err)
 	}
 	defer gl.DeleteShader(vertexShader)
 
@@ -55,7 +56,7 @@ func NewProgram(vertexShaderSource, fragmentShaderSource string) (uint32, error)
 	if err != nil {
 		fmt.Println("Fragment shader did not compile")
 		fmt.Println(err)
-		return 0, err
+		panic(err)
 	}
 	defer gl.DeleteShader(fragmentShader)
 
@@ -76,10 +77,11 @@ func NewProgram(vertexShaderSource, fragmentShaderSource string) (uint32, error)
 
 		gl.DeleteProgram(program)
 
-		return 0, fmt.Errorf("Failed to link program: %v", log)
+		fmt.Errorf("Failed to link program: %v", log)
+		os.Exit(-1)
 	}
 
-	return program, nil
+	return program
 }
 
 // SetUniformMat4 SetUniformMat4
