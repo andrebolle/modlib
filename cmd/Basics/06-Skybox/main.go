@@ -198,7 +198,7 @@ func main() {
 
 	// Pre-Draw Setup
 	gl.Enable(gl.DEPTH_TEST)
-	gl.Enable(gl.CULL_FACE)
+	//gl.Enable(gl.CULL_FACE)
 	gl.FrontFace(gl.CCW) // CCW is default
 	gl.DepthFunc(gl.LESS)
 	gl.ClearColor(1, 0, 0, 1.0)
@@ -220,6 +220,30 @@ func main() {
 		// Calculate dynamic uniforms
 		model := mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
 		view := mgl32.LookAtV(cam.Position, cam.Position.Add(cam.Forward), cam.Up)
+
+		// ---------------------------------------- Draw the skybox
+		// Draw it as the first object in the scene and disable depth writing. This way the skybox will always be
+		// drawn at the background of all the other objects.
+
+		gl.DepthMask(false)
+
+		//gl.DepthFunc(gl.LEQUAL) // change depth function so depth test passes when values are equal to depth buffer's content
+		gl.UseProgram(cubemap)
+
+		//view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
+		//skyboxShader.setMat4("view", view);
+		//skyboxShader.setMat4("projection", projection);
+		//gl.UniformMatrix4fv(uViewCubemapLocation, 1, false, &view[0])
+		viewWithoutTranslation := view.Mat3().Mat4() // remove translation from the view matrix
+		gl.UniformMatrix4fv(uViewCubemapLocation, 1, false, &viewWithoutTranslation[0])
+		gl.UniformMatrix4fv(uProjectionCubemapLocation, 1, false, &projection[0])
+		// skybox cube
+		gl.BindVertexArray(skyboxVAO)
+		gl.ActiveTexture(gl.TEXTURE0)
+		gl.BindTexture(gl.TEXTURE_CUBE_MAP, cubemapTexture)
+		gl.DrawArrays(gl.TRIANGLES, 0, 36)
+		gl.BindVertexArray(0)
+		gl.DepthMask(true)
 
 		// ----------------------------------- Draw the model
 		gl.UseProgram(lighting)
@@ -248,26 +272,6 @@ func main() {
 		// gl.DrawArrays(gl.TRIANGLES, 0, 36)
 		// gl.BindVertexArray(0)
 		// gl.DepthFunc(gl.LESS) // set depth function back to default
-
-		// ---------------------------------------- Draw the skybox
-
-		gl.DepthFunc(gl.LEQUAL) // change depth function so depth test passes when values are equal to depth buffer's content
-		gl.UseProgram(cubemap)
-
-		//view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
-		//skyboxShader.setMat4("view", view);
-		//skyboxShader.setMat4("projection", projection);
-		//gl.UniformMatrix4fv(uViewCubemapLocation, 1, false, &view[0])
-		viewWithoutTranslation := view.Mat3().Mat4() // remove translation from the view matrix
-		gl.UniformMatrix4fv(uViewCubemapLocation, 1, false, &viewWithoutTranslation[0])
-		gl.UniformMatrix4fv(uProjectionCubemapLocation, 1, false, &projection[0])
-		// skybox cube
-		gl.BindVertexArray(skyboxVAO)
-		gl.ActiveTexture(gl.TEXTURE0)
-		gl.BindTexture(gl.TEXTURE_CUBE_MAP, cubemapTexture)
-		gl.DrawArrays(gl.TRIANGLES, 0, 36)
-		gl.BindVertexArray(0)
-		gl.DepthFunc(gl.LESS) // set depth function back to default
 
 		window.SwapBuffers()
 		glfw.PollEvents()
