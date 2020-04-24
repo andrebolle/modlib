@@ -3,7 +3,7 @@ package utils
 import (
 	"unsafe"
 
-	"github.com/go-gl/gl/v2.1/gl"
+	"github.com/go-gl/gl/v4.6-core/gl"
 )
 
 // Faces Faces

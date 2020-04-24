@@ -38,18 +38,20 @@ func loadCubemap(faces []string) uint32 {
 	return textureID
 }
 
-// var testing []float32 = []float32{
-// 	// positions
-// 	-1.0, 1.0, -1.0}
-
 func main() {
 
-	// The Vertices
-	floats, indices, stride, posOffset, texOffset, normOffset := utils.OJBLoader("cube.obj")
-
-	// Window, Camera
+	// We need an OpenGL context, a window and a camera
 	window, cam := utils.GetWindowAndCamera(800, 600)
 	defer window.Destroy()
+
+	// We need something to draw
+	floats, indices, stride, posOffset, texOffset, normOffset := utils.OJBLoader("cube.obj")
+
+	// Load the texture for the model
+	texture := utils.NewTexture("square.png")
+	// Load cubemap texture
+	//cubemapTexture := loadCubemap(utils.Faces)
+	cubemapTexture := utils.LoadCubemap(utils.Faces)
 
 	// Program
 	lighting := utils.NewProgram(utils.ReadShader("Lighting.vs.glsl"), utils.ReadShader("Lighting.fs.glsl"))
@@ -83,11 +85,6 @@ func main() {
 	gl.Uniform1i(uTexLocation, 0)
 	gl.Uniform3fv(uLightPosLocation, 1, &lightPos[0])
 	gl.Uniform3fv(uLightColourLocation, 1, &lightColor[0])
-
-	// Load the texture for the model
-	texture := utils.NewTexture("square.png")
-	// Load cubemap texture
-	cubemapTexture := loadCubemap(utils.Faces)
 
 	// Vertex Array Object
 	var modelVAO uint32
