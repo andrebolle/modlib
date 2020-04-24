@@ -37,7 +37,18 @@ func loadCubemap(faces []string) uint32 {
 	return textureID
 }
 
+// var testing []float32 = []float32{
+// 	// positions
+// 	-1.0, 1.0, -1.0}
+
 func main() {
+
+	// The Vertices
+	floats, indices, stride, posOffset, texOffset, normOffset := utils.OJBLoader("cube.obj")
+
+	// Window, Camera
+	window, cam := utils.GetWindowAndCamera(0, 600)
+	defer window.Destroy()
 
 	skyboxVertices := []float32{
 		// positions
@@ -93,13 +104,6 @@ func main() {
 		"back.jpg",
 	}
 
-	// The Vertices
-	floats, indices, stride, posOffset, texOffset, normOffset := utils.OJBLoader("suzanne.obj")
-
-	// Window, Camera
-	window, cam := utils.GetWindowAndCamera(800, 600)
-	defer window.Destroy()
-
 	// Load cubemap texture
 	cubemapTexture := loadCubemap(faces)
 
@@ -112,7 +116,7 @@ func main() {
 	// -------------------------------------- Model ---------------------------------
 	gl.UseProgram(lighting)
 
-	// Vertex Attribute locations
+	// Retrieve vertex attribute locations
 	aPosLocation := uint32(gl.GetAttribLocation(lighting, gl.Str("aPos\x00")))
 	aUVLocation := uint32(gl.GetAttribLocation(lighting, gl.Str("aUV\x00")))
 	aNormalLocation := uint32(gl.GetAttribLocation(lighting, gl.Str("aNormal\x00")))
@@ -179,7 +183,7 @@ func main() {
 	gl.GenBuffers(1, &skyboxVBO)
 	gl.BindVertexArray(skyboxVAO)
 	gl.BindBuffer(gl.ARRAY_BUFFER, skyboxVBO)
-	gl.BufferData(gl.ARRAY_BUFFER, len(skyboxVertices), gl.Ptr(&(skyboxVertices)[0]), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(skyboxVertices)*4, gl.Ptr(&(skyboxVertices)[0]), gl.STATIC_DRAW)
 	gl.EnableVertexAttribArray(0)
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3*4, gl.PtrOffset(0))
 
@@ -194,8 +198,10 @@ func main() {
 
 	// Pre-Draw Setup
 	gl.Enable(gl.DEPTH_TEST)
+	gl.Enable(gl.CULL_FACE)
+	gl.FrontFace(gl.CCW) // CCW is default
 	gl.DepthFunc(gl.LESS)
-	gl.ClearColor(0, 0, 0, 1.0)
+	gl.ClearColor(1, 0, 0, 1.0)
 
 	angle := 0.0
 	previousTime := glfw.GetTime()
@@ -226,16 +232,34 @@ func main() {
 		gl.ActiveTexture(gl.TEXTURE0)
 		gl.BindTexture(gl.TEXTURE_2D, texture.ID)
 		gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
+		//gl.DrawElements(gl.TRIANGLES, 0, gl.UNSIGNED_INT, gl.PtrOffset(0))
 		gl.BindVertexArray(0)
+
+		// ---------------------------------------- Draw the skybox
+
+		// gl.DepthFunc(gl.LEQUAL) // change depth function so depth test passes when values are equal to depth buffer's content
+		// gl.UseProgram(cubemap)
+		// viewWithoutTranslation := view.Mat3().Mat4() // remove translation from the view matrix
+		// gl.UniformMatrix4fv(uViewCubemapLocation, 1, false, &viewWithoutTranslation[0])
+		// gl.UniformMatrix4fv(uProjectionCubemapLocation, 1, false, &projection[0])
+		// gl.BindVertexArray(skyboxVAO)
+		// gl.ActiveTexture(gl.TEXTURE0)
+		// gl.BindTexture(gl.TEXTURE_CUBE_MAP, cubemapTexture)
+		// gl.DrawArrays(gl.TRIANGLES, 0, 36)
+		// gl.BindVertexArray(0)
+		// gl.DepthFunc(gl.LESS) // set depth function back to default
 
 		// ---------------------------------------- Draw the skybox
 
 		gl.DepthFunc(gl.LEQUAL) // change depth function so depth test passes when values are equal to depth buffer's content
 		gl.UseProgram(cubemap)
+
 		//view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
 		//skyboxShader.setMat4("view", view);
 		//skyboxShader.setMat4("projection", projection);
-		gl.UniformMatrix4fv(uViewCubemapLocation, 1, false, &view[0])
+		//gl.UniformMatrix4fv(uViewCubemapLocation, 1, false, &view[0])
+		viewWithoutTranslation := view.Mat3().Mat4() // remove translation from the view matrix
+		gl.UniformMatrix4fv(uViewCubemapLocation, 1, false, &viewWithoutTranslation[0])
 		gl.UniformMatrix4fv(uProjectionCubemapLocation, 1, false, &projection[0])
 		// skybox cube
 		gl.BindVertexArray(skyboxVAO)
