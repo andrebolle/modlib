@@ -51,63 +51,6 @@ func main() {
 	window, cam := utils.GetWindowAndCamera(800, 600)
 	defer window.Destroy()
 
-	skyboxVertices := []float32{
-		// positions
-		-1.0, 1.0, -1.0,
-		-1.0, -1.0, -1.0,
-		1.0, -1.0, -1.0,
-		1.0, -1.0, -1.0,
-		1.0, 1.0, -1.0,
-		-1.0, 1.0, -1.0,
-
-		-1.0, -1.0, 1.0,
-		-1.0, -1.0, -1.0,
-		-1.0, 1.0, -1.0,
-		-1.0, 1.0, -1.0,
-		-1.0, 1.0, 1.0,
-		-1.0, -1.0, 1.0,
-
-		1.0, -1.0, -1.0,
-		1.0, -1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, -1.0,
-		1.0, -1.0, -1.0,
-
-		-1.0, -1.0, 1.0,
-		-1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, -1.0, 1.0,
-		-1.0, -1.0, 1.0,
-
-		-1.0, 1.0, -1.0,
-		1.0, 1.0, -1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		-1.0, 1.0, 1.0,
-		-1.0, 1.0, -1.0,
-
-		-1.0, -1.0, -1.0,
-		-1.0, -1.0, 1.0,
-		1.0, -1.0, -1.0,
-		1.0, -1.0, -1.0,
-		-1.0, -1.0, 1.0,
-		1.0, -1.0, 1.0,
-	}
-
-	faces := []string{
-		"right.jpg",
-		"left.jpg",
-		"top.jpg",
-		"bottom.jpg",
-		"front.jpg",
-		"back.jpg",
-	}
-
-	// Load cubemap texture
-	cubemapTexture := loadCubemap(faces)
-
 	// Program
 	lighting := utils.NewProgram(utils.ReadShader("Lighting.vs.glsl"), utils.ReadShader("Lighting.fs.glsl"))
 	cubemap := utils.NewProgram(utils.ReadShader("cubemap.vs.glsl"), utils.ReadShader("cubemap.fs.glsl"))
@@ -131,21 +74,20 @@ func main() {
 	uLightColourLocation := gl.GetUniformLocation(lighting, gl.Str("uLightColor\x00"))
 	uLightPosLocation := gl.GetUniformLocation(lighting, gl.Str("uLightPos\x00"))
 
-	// Compute static uniform values
+	// Compute and set shader constants for "lighting" program
 	projection := mgl32.Perspective(cam.Fovy, cam.Aspect, cam.Near, cam.Far)
 	lightColor := mgl32.Vec3{1, 1, 1}
 	lightPos := mgl32.Vec3{3, 3, 3}
 
-	// Set uniform values which do not change
 	gl.UniformMatrix4fv(uProjectionLocation, 1, false, &projection[0])
 	gl.Uniform1i(uTexLocation, 0)
 	gl.Uniform3fv(uLightPosLocation, 1, &lightPos[0])
 	gl.Uniform3fv(uLightColourLocation, 1, &lightColor[0])
 
-	// LoadTexture
+	// Load the texture for the model
 	texture := utils.NewTexture("square.png")
-	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, texture.Width,
-		texture.Height, 0, gl.RGBA, gl.UNSIGNED_BYTE, unsafe.Pointer(&texture.RGBA.Pix[0]))
+	// Load cubemap texture
+	cubemapTexture := loadCubemap(utils.Faces)
 
 	// Vertex Array Object
 	var modelVAO uint32
@@ -184,7 +126,7 @@ func main() {
 	gl.GenBuffers(1, &skyboxVBO)
 	gl.BindVertexArray(skyboxVAO)
 	gl.BindBuffer(gl.ARRAY_BUFFER, skyboxVBO)
-	gl.BufferData(gl.ARRAY_BUFFER, len(skyboxVertices)*4, gl.Ptr(&(skyboxVertices)[0]), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(utils.SkyboxVertices)*4, gl.Ptr(&(utils.SkyboxVertices)[0]), gl.STATIC_DRAW)
 	gl.EnableVertexAttribArray(0)
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3*4, gl.PtrOffset(0))
 

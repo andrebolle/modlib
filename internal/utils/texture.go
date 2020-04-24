@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"image"
 	"image/draw"
+	"unsafe"
 
 	// Required in order to use jpeg files.
 	_ "image/jpeg"
@@ -54,19 +55,22 @@ func LoadRGBA(file string) *image.RGBA {
 
 // NewTexture NewTexture
 func NewTexture(file string) Texture {
-	var tex Texture
-	tex.RGBA = LoadRGBA(file)
-	tex.Width = int32(tex.RGBA.Rect.Size().X)
-	tex.Height = int32(tex.RGBA.Rect.Size().Y)
+	var texture Texture
+	texture.RGBA = LoadRGBA(file)
+	texture.Width = int32(texture.RGBA.Rect.Size().X)
+	texture.Height = int32(texture.RGBA.Rect.Size().Y)
 
-	gl.GenTextures(1, &tex.ID)
+	gl.GenTextures(1, &texture.ID)
 	gl.ActiveTexture(gl.TEXTURE0)
-	gl.BindTexture(gl.TEXTURE_2D, tex.ID)
+	gl.BindTexture(gl.TEXTURE_2D, texture.ID)
 
 	// Set basic filter and wrap values
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-	return tex
+
+	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, texture.Width,
+		texture.Height, 0, gl.RGBA, gl.UNSIGNED_BYTE, unsafe.Pointer(&texture.RGBA.Pix[0]))
+	return texture
 }
