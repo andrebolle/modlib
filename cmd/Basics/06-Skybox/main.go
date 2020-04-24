@@ -47,7 +47,7 @@ func main() {
 	floats, indices, stride, posOffset, texOffset, normOffset := utils.OJBLoader("cube.obj")
 
 	// Window, Camera
-	window, cam := utils.GetWindowAndCamera(0, 600)
+	window, cam := utils.GetWindowAndCamera(800, 600)
 	defer window.Destroy()
 
 	skyboxVertices := []float32{
@@ -222,9 +222,10 @@ func main() {
 		view := mgl32.LookAtV(cam.Position, cam.Position.Add(cam.Forward), cam.Up)
 
 		// ---------------------------------------- Draw the skybox
-		// Draw it as the first object in the scene and disable depth writing. This way the skybox will always be
+		// Draw the Skybox as the first object in the scene whilst disabling depth writing. This way the skybox will always be
 		// drawn at the background of all the other objects.
 
+		// Don't write to the depth buffer.
 		gl.DepthMask(false)
 
 		//gl.DepthFunc(gl.LEQUAL) // change depth function so depth test passes when values are equal to depth buffer's content
@@ -243,9 +244,10 @@ func main() {
 		gl.BindTexture(gl.TEXTURE_CUBE_MAP, cubemapTexture)
 		gl.DrawArrays(gl.TRIANGLES, 0, 36)
 		gl.BindVertexArray(0)
-		gl.DepthMask(true)
 
 		// ----------------------------------- Draw the model
+		// Do write to the depth buffer
+		gl.DepthMask(true)
 		gl.UseProgram(lighting)
 
 		gl.UniformMatrix4fv(uViewLocation, 1, false, &view[0])
@@ -259,20 +261,7 @@ func main() {
 		//gl.DrawElements(gl.TRIANGLES, 0, gl.UNSIGNED_INT, gl.PtrOffset(0))
 		gl.BindVertexArray(0)
 
-		// ---------------------------------------- Draw the skybox
-
-		// gl.DepthFunc(gl.LEQUAL) // change depth function so depth test passes when values are equal to depth buffer's content
-		// gl.UseProgram(cubemap)
-		// viewWithoutTranslation := view.Mat3().Mat4() // remove translation from the view matrix
-		// gl.UniformMatrix4fv(uViewCubemapLocation, 1, false, &viewWithoutTranslation[0])
-		// gl.UniformMatrix4fv(uProjectionCubemapLocation, 1, false, &projection[0])
-		// gl.BindVertexArray(skyboxVAO)
-		// gl.ActiveTexture(gl.TEXTURE0)
-		// gl.BindTexture(gl.TEXTURE_CUBE_MAP, cubemapTexture)
-		// gl.DrawArrays(gl.TRIANGLES, 0, 36)
-		// gl.BindVertexArray(0)
-		// gl.DepthFunc(gl.LESS) // set depth function back to default
-
+		// Swap and Poll
 		window.SwapBuffers()
 		glfw.PollEvents()
 	}
