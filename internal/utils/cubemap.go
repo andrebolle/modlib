@@ -16,8 +16,8 @@ var Faces []string = []string{
 	"back.jpg",
 }
 
-// LoadCubemap LoadCubemap
-func LoadCubemap(faces []string) uint32 {
+// Background Background
+func Background(faces []string) uint32 {
 	var textureID uint32
 	gl.GenTextures(1, &textureID)
 

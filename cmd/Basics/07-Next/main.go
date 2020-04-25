@@ -17,18 +17,16 @@ import (
 
 func main() {
 
-	// We need an OpenGL context, a window and a camera
+	// Get an OpenGL context, a window and a camera
 	window, cam := utils.GetWindowAndCamera(800, 600)
 	defer window.Destroy()
 
-	// We need something to draw
-	floats, indices, stride, posOffset, texOffset, normOffset := utils.OJBLoader("cube.obj")
-
-	// Load the texture for the model
-	texture := utils.NewTexture("square.png")
-	// Load cubemap texture
-	//cubemapTexture := loadCubemap(utils.Faces)
+	// Get a cubemap
 	cubemapTexture := utils.LoadCubemap(utils.Faces)
+
+	// Get something to draw and it's texture
+	floats, indices, stride, posOffset, texOffset, normOffset := utils.OJBLoader("cube.obj")
+	texture := utils.NewTexture("square.png")
 
 	// Program
 	lighting := utils.NewProgram(utils.ReadShader("Lighting.vs.glsl"), utils.ReadShader("Lighting.fs.glsl"))
