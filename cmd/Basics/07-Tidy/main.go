@@ -17,19 +17,19 @@ import (
 
 func main() {
 
-	// Get an OpenGL context, a window and a camera
+	// Create the OpenGL context, window and camera
 	window, cam := utils.GetWindowAndCamera(800, 600)
 	defer window.Destroy()
 
-	// Get the cubemap texture
+	// Load the background (sky, stars, whatever)
 	cubemapTexture := utils.Cubemap(utils.Faces)
-	// Compile the cubemap program
+	// Compile the cubemap program. This program should be run first in the render.
 	cubemapShader := utils.NewProgram(utils.ReadShader("cubemap.vs.glsl"), utils.ReadShader("cubemap.fs.glsl"))
 	defer gl.DeleteProgram(cubemapShader)
 
-	// Load the texture for the main object(s)
+	// Load the texture for the models in the foreground
 	texture := utils.NewTexture("square.png")
-	// Load the geometry
+	// Load the geometry of the model(s)
 	floats, indices, stride, posOffset, texOffset, normOffset := utils.OJBLoader("cube.obj")
 
 	// Compile the lighting program
