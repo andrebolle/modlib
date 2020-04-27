@@ -1,0 +1,12 @@
+// Window, Camera
+// Program
+// GetUniformLocation, UniformMatrix4fv
+// for model, view, perspective
+// LoadTexture, ActiveTexture, BindTexture
+// The Vertices
+// VAO - Gen and Bind
+// Buffers: Gen, Bind, VertexAttribPointer, EnableVertexAttribArray, BufferData
+// Pre Draw Setup
+// Main Draw Loop
+	// Update the View Transform, because the Camera/Model may have moved
+    // Clear, Draw, Swap, Poll

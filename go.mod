@@ -3,6 +3,7 @@ module github.com/purelazy/modlib
 go 1.14
 
 require (
+	github.com/ByteArena/box2d v1.0.2
 	github.com/elliotchance/c2go v0.26.1 // indirect
 	github.com/g3n/engine v0.1.1-0.20200227161744-78541849abfd
 	github.com/go-gl/gl v0.0.0-20190320180904-bf2b1f2f34d7
