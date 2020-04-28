@@ -28,7 +28,9 @@ func main() {
 
 	// Load textures
 	cubemapTexture := utils.Cubemap(utils.Faces)
+	gl.BindTexture(gl.TEXTURE_CUBE_MAP, cubemapTexture)
 	modelTexture := utils.NewTexture("square.png")
+	gl.BindTexture(gl.TEXTURE_2D, modelTexture.ID)
 
 	// Compile model and cubemap shaders
 	lighting := utils.NewProgram(utils.ReadShader("Lighting.vs.glsl"), utils.ReadShader("Lighting.fs.glsl"))
@@ -66,14 +68,12 @@ func main() {
 			// need to be cleared and not depth testing
 			gl.Disable(gl.DEPTH_TEST)
 
-			// Remove translation from the view matrix. i.e. the skybox stays in the same place.
+			// The skybox does not move, relative to the view. So all translation is set to zero
 			viewWithoutTranslation := view.Mat3().Mat4()
 			gl.UniformMatrix4fv(uViewCubemapLocation, 1, false, &viewWithoutTranslation[0])
 
+			// Arm GPU with VAO and Render
 			gl.BindVertexArray(skyboxVAO)
-			gl.ActiveTexture(gl.TEXTURE0)
-			gl.BindTexture(gl.TEXTURE_CUBE_MAP, cubemapTexture)
-			// Draw the VAO that is currently bound
 			gl.DrawArrays(gl.TRIANGLES, 0, 36)
 		}
 
@@ -81,21 +81,20 @@ func main() {
 			gl.UseProgram(lighting)
 			gl.Enable(gl.CULL_FACE) // Only front-facing triangles will be drawn
 
-			// Dynamic uniforms
+			// Calculate uniforms
 			position := boxBody.GetPosition()
 			angle := boxBody.GetAngle()
 			rotate := mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 0, 1})
-
 			translate := mgl32.Translate3D(float32(position.X), float32(position.Y), 0)
 			model := translate.Mul4(rotate)
 
+			// Set uniforms
 			gl.UniformMatrix4fv(uViewLocation, 1, false, &view[0])
 			gl.UniformMatrix4fv(uModelLocation, 1, false, &model[0])
 			gl.Uniform3fv(uViewPosLocation, 1, &cam.Position[0])
 
+			// Arm GPU with VAO and Render
 			gl.BindVertexArray(cubeVAO)
-			gl.ActiveTexture(gl.TEXTURE0)
-			gl.BindTexture(gl.TEXTURE_2D, modelTexture.ID)
 			gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
 		}
 
