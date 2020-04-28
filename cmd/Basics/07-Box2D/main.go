@@ -6,7 +6,6 @@
 package main
 
 import (
-	"fmt"
 	_ "image/png"
 	"math"
 	"math/rand"
@@ -27,7 +26,7 @@ func main() {
 	// Construct a world object, which will hold and simulate the rigid bodies.
 	world := box2d.MakeB2World(gravity)
 
-	// SHortnames
+	// Short names
 	//kinetic := box2d.B2BodyType.B2_kinematicBody
 	dynamic := box2d.B2BodyType.B2_dynamicBody
 
@@ -35,10 +34,14 @@ func main() {
 	timeStep := 1.0 / 60.0
 	velocityIterations := 8
 	positionIterations := 3
-	//world.Step(timeStep, velocityIterations, positionIterations)
 
 	// A place to store bodies by name
 	//characters := make(map[string]*box2d.B2Body)
+
+	// 1. Create a bodydef. Initial Position, Type (Dynamic, Static,  Kinematic)
+	// 2. Create the body from the def.
+	// 3. Create a shape - Polygon, Chain, Circle
+	// 4. Create a fixture - glues body and shape. denisty, friction, restitution
 
 	// ----------------- Left
 	leftBodyDef := box2d.MakeB2BodyDef()
@@ -113,25 +116,19 @@ func main() {
 	fixtureDef.Restitution = 1
 	boxBody.CreateFixtureFromDef(&fixtureDef)
 
-	for i := world.GetBodyList(); i != nil; i = i.GetNext() {
-		fmt.Println(i)
-	}
-
-	// 1. Create a bodydef. Initial Position, Type (Dynamic, Static,  Kinematic)
-	// 2. Create the body from the def.
-	// 3. Create a shape - Polygon, Chain, Circle
-	// 4. Create a fixture - glues body and shape. denisty, friction, restitution
+	// physObjList := world.GetBodyList()
+	// for i := 0; physObjList != nil; i++ {
+	// 	fmt.Println(i)
+	// 	physObjList = physObjList.GetNext()
+	// }
 
 	// Create the OpenGL context, window and camera
 	window, cam := utils.GetWindowAndCamera(800, 600)
 	defer window.Destroy()
 
-	// Load the background and model textures
+	// Load textures
 	cubemapTexture := utils.Cubemap(utils.Faces)
 	modelTexture := utils.NewTexture("square.png")
-
-	// // Load the model geometry
-	// floats, indices, stride, posOffset, texOffset, normOffset := utils.OJBLoader("cube.obj")
 
 	// Compile model and cubemap shaders
 	lighting := utils.NewProgram(utils.ReadShader("Lighting.vs.glsl"), utils.ReadShader("Lighting.fs.glsl"))
