@@ -8,6 +8,8 @@ package main
 import (
 	"fmt"
 	_ "image/png"
+	"math"
+	"math/rand"
 	"unsafe"
 
 	"github.com/ByteArena/box2d"
@@ -21,7 +23,7 @@ func main() {
 
 	// Box2D is tuned for meters, kilograms, and seconds.
 	// Define the gravity vector.
-	gravity := box2d.MakeB2Vec2(0.0, 10.0)
+	gravity := box2d.MakeB2Vec2(0.0, 0.0)
 
 	// Construct a world object, which will hold and simulate the rigid bodies.
 	world := box2d.MakeB2World(gravity)
@@ -34,31 +36,69 @@ func main() {
 	timeStep := 1.0 / 60.0
 	velocityIterations := 8
 	positionIterations := 3
-	world.Step(timeStep, velocityIterations, positionIterations)
+	//world.Step(timeStep, velocityIterations, positionIterations)
 
 	// A place to store bodies by name
 	//characters := make(map[string]*box2d.B2Body)
 
+	// ----------------- Left
+	leftBodyDef := box2d.MakeB2BodyDef()
+	leftBodyDef.Position.Set(-20, 0)
+
+	leftBody := world.CreateBody(&leftBodyDef)
+
+	leftBox := box2d.MakeB2PolygonShape()
+
+	leftBox.SetAsBox(19.0, 5000.0)
+
+	leftBody.CreateFixture(&leftBox, 0.0)
+
+	// ----------------- Right
+	rightBodyDef := box2d.MakeB2BodyDef()
+	rightBodyDef.Position.Set(20, 0)
+
+	rightBody := world.CreateBody(&rightBodyDef)
+
+	rightBox := box2d.MakeB2PolygonShape()
+
+	rightBox.SetAsBox(10.0, 5000.0)
+
+	rightBody.CreateFixture(&rightBox, 0.0)
+
 	// ----------------- Ground
 	groundBodyDef := box2d.MakeB2BodyDef()
-	groundBodyDef.Position.Set(0.0, -10.0)
+	groundBodyDef.Position.Set(0.0, -20.0)
 
 	groundBody := world.CreateBody(&groundBodyDef)
 
 	groundBox := box2d.MakeB2PolygonShape()
 
-	groundBox.SetAsBox(50.0, 10.0)
+	groundBox.SetAsBox(5000.0, 10.0)
 
 	groundBody.CreateFixture(&groundBox, 0.0)
 
+	// ----------------- Ceiling
+	ceilingBodyDef := box2d.MakeB2BodyDef()
+	ceilingBodyDef.Position.Set(0.0, 20.0)
+
+	ceilingBody := world.CreateBody(&ceilingBodyDef)
+
+	ceilingBox := box2d.MakeB2PolygonShape()
+
+	ceilingBox.SetAsBox(5000.0, 10.0)
+
+	ceilingBody.CreateFixture(&ceilingBox, 0.0)
+
 	// ----------------- Box
 	boxBodyDef := box2d.MakeB2BodyDef()
-	boxBodyDef.Position.Set(0, 0)
+	boxBodyDef.Position.Set(0, 10)
+
 	boxBodyDef.Type = dynamic
 	boxBodyDef.AllowSleep = false
-
+	boxBodyDef.LinearVelocity.Set(4, 2)
 	// Body instance
 	boxBody := world.CreateBody(&boxBodyDef)
+	boxBody.SetTransform(box2d.B2Vec2{X: rand.Float64(), Y: rand.Float64()}, rand.Float64()*2*math.Pi)
 
 	// Create a box shape
 	boxShape := box2d.MakeB2PolygonShape()
@@ -70,19 +110,13 @@ func main() {
 	fixtureDef := box2d.MakeB2FixtureDef()
 	fixtureDef.Shape = &boxShape
 	fixtureDef.Density = 1.0
-	fixtureDef.Friction = 0.3
-	fixtureDef.Restitution = 0.9
+	fixtureDef.Friction = 0.0
+	fixtureDef.Restitution = 1
 	boxBody.CreateFixtureFromDef(&fixtureDef)
 
-	// for i := 0; i < 60; i++ {
-	// 	world.Step(timeStep, velocityIterations, positionIterations)
-	// 	position := boxBody.GetPosition()
-	// 	angle := boxBody.GetAngle()
-	// 	fmt.Println(position.X, position.Y, angle)
-
-	// }
-
-	// os.Exit(0)
+	for i := world.GetBodyList(); i != nil; i = i.GetNext() {
+		fmt.Println(i)
+	}
 
 	// 1. Create a bodydef. Initial Position, Type (Dynamic, Static,  Kinematic)
 	// 2. Create the body from the def.
@@ -106,15 +140,16 @@ func main() {
 	defer gl.DeleteProgram(lighting)
 	defer gl.DeleteProgram(cubemapShader)
 
-	// -------------------------------------- Model ---------------------------------
-	gl.UseProgram(lighting)
+	// For each program
 
-	// Retrieve vertex attribute locations from "lighting" program
+	// -------------------------------------- Cube ---------------------------------
+	// Use program to get locations
+	gl.UseProgram(lighting)
+	// ---------------------- Get locations
 	aPosLocation := uint32(gl.GetAttribLocation(lighting, gl.Str("aPos\x00")))
 	aUVLocation := uint32(gl.GetAttribLocation(lighting, gl.Str("aUV\x00")))
 	aNormalLocation := uint32(gl.GetAttribLocation(lighting, gl.Str("aNormal\x00")))
 
-	// Retrieve uniform locations from "lighting" program
 	uModelLocation := gl.GetUniformLocation(lighting, gl.Str("uModel\x00"))
 	uViewLocation := gl.GetUniformLocation(lighting, gl.Str("uView\x00"))
 	uProjectionLocation := gl.GetUniformLocation(lighting, gl.Str("uProjection\x00"))
@@ -123,27 +158,26 @@ func main() {
 	uLightColourLocation := gl.GetUniformLocation(lighting, gl.Str("uLightColor\x00"))
 	uLightPosLocation := gl.GetUniformLocation(lighting, gl.Str("uLightPos\x00"))
 
-	// Compute ...
+	// ------------------------- Compute and set static uniforms
 	projection := mgl32.Perspective(cam.Fovy, cam.Aspect, cam.Near, cam.Far)
 	lightColor := mgl32.Vec3{1, 1, 1}
 	lightPos := mgl32.Vec3{3, 3, 3}
 
-	// ...  and set shader constants for "lighting" program
 	gl.UniformMatrix4fv(uProjectionLocation, 1, false, &projection[0])
 	gl.Uniform1i(uTexLocation, 0)
 	gl.Uniform3fv(uLightPosLocation, 1, &lightPos[0])
 	gl.Uniform3fv(uLightColourLocation, 1, &lightColor[0])
 
-	// OpenGL objects
-	var cubeVAO uint32
+	// -------------------------  VAO, EBO, VBO
+	var cubeVAO, cubeVBO, cubeEBO uint32
+
 	gl.GenVertexArrays(1, &cubeVAO)
 	gl.BindVertexArray(cubeVAO)
 
-	var cubeVBO uint32
 	gl.GenBuffers(1, &cubeVBO)
 	gl.BindBuffer(gl.ARRAY_BUFFER, cubeVBO)
 
-	// Describe/Enable vertex attributes array
+	// For each atrribute {EnableVertexAttribArray, VertexAttribPointer}
 	gl.EnableVertexAttribArray(aPosLocation)
 	gl.VertexAttribPointer(aPosLocation, 3, gl.FLOAT, false, int32(stride), gl.PtrOffset(posOffset))
 	gl.EnableVertexAttribArray(aUVLocation)
@@ -151,16 +185,26 @@ func main() {
 	gl.EnableVertexAttribArray(aNormalLocation)
 	gl.VertexAttribPointer(aNormalLocation, 3, gl.FLOAT, false, int32(stride), gl.PtrOffset(normOffset))
 
-	// Fill vertex attributes array
-	gl.BufferData(gl.ARRAY_BUFFER, len(*floats)*4, gl.Ptr(&(*floats)[0]), gl.STATIC_DRAW)
-
-	// Create and fill index buffer
-	var cubeEBO uint32
 	gl.GenBuffers(1, &cubeEBO)
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeEBO)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(*indices)*4, unsafe.Pointer(&(*indices)[0]), gl.STATIC_DRAW)
 
+	gl.BufferData(gl.ARRAY_BUFFER, len(*floats)*4, gl.Ptr(&(*floats)[0]), gl.STATIC_DRAW)
+	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+
 	//  --------------------------------------------------- Skybox
+	// Use program to get locations
+	gl.UseProgram(cubemapShader)
+	// -------------------- Get locations
+	uViewCubemapLocation := gl.GetUniformLocation(cubemapShader, gl.Str("uView\x00"))
+	uProjectionCubemapLocation := gl.GetUniformLocation(cubemapShader, gl.Str("uProjection\x00"))
+	uTexCubemapLocation := gl.GetUniformLocation(cubemapShader, gl.Str("uTex\x00"))
+
+	// ------------------- Set static uniforms
+	gl.UniformMatrix4fv(uProjectionCubemapLocation, 1, false, &projection[0])
+	gl.Uniform1i(uTexCubemapLocation, 0)
+
+	// -------------------------  VAO, EBO, VBO
 	var skyboxVAO, skyboxVBO uint32
 	gl.GenVertexArrays(1, &skyboxVAO)
 	gl.GenBuffers(1, &skyboxVBO)
@@ -170,88 +214,61 @@ func main() {
 	gl.EnableVertexAttribArray(0)
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3*4, gl.PtrOffset(0))
 
-	gl.UseProgram(cubemapShader)
-
-	// Retrieve uniform locations
-	uViewCubemapLocation := gl.GetUniformLocation(cubemapShader, gl.Str("uView\x00"))
-	uProjectionCubemapLocation := gl.GetUniformLocation(cubemapShader, gl.Str("uProjection\x00"))
-	uTexCubemapLocation := gl.GetUniformLocation(cubemapShader, gl.Str("uTex\x00"))
-
-	// Set uniform values which do not change
-	gl.UniformMatrix4fv(uProjectionCubemapLocation, 1, false, &projection[0])
-	gl.Uniform1i(uTexCubemapLocation, 0)
-
-	// Pre-Draw Setup
-	gl.Enable(gl.DEPTH_TEST)
-	//gl.Enable(gl.CULL_FACE)
-	gl.FrontFace(gl.CCW) // CCW is default
-	gl.DepthFunc(gl.LESS)
-	gl.ClearColor(1, 0, 0, 1.0)
-
-	angle := 0.0
-	previousTime := glfw.GetTime()
-
 	for !window.ShouldClose() {
 
-		// Update the View Transform, because the Camera/Model may have moved
-		time := glfw.GetTime()
-		elapsed := time - previousTime
-		previousTime = time
-		angle += elapsed * 0.1
-
-		// Clear
-		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-
-		// Calculate dynamic uniforms
-		//model := mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 1, 0})
-
-		world.Step(timeStep, velocityIterations, positionIterations)
-		position := boxBody.GetPosition()
-		angle := boxBody.GetAngle()
-		fmt.Println(position.X, position.Y, angle)
-
-		if cam.Paused {
-			//world.M_gravity = box2d.B2Vec2{X: 0, Y: 10}
-			boxBody.SetGravityScale(-1)
-		} else {
-			//world.M_gravity = box2d.B2Vec2{X: 0, Y: -10}
-			boxBody.SetGravityScale(1)
-		}
-		model := mgl32.Translate3D(float32(position.X), float32(position.Y), 0)
+		// View is used in multiple programs
 		view := mgl32.LookAtV(cam.Position, cam.Position.Add(cam.Forward), cam.Up)
 
-		// ---------------------------------------- Draw the skybox
-		// Draw the Skybox first with no depth writing do it will always be
-		// drawn at the background of all the other objects.
-		gl.DepthMask(false)
+		{ // ----------------Physics
+			// Reverse gravity
+			if cam.Paused {
+				boxBody.SetGravityScale(-1)
+			} else {
+				boxBody.SetGravityScale(1)
+			}
 
-		// Load the cubemap program
-		gl.UseProgram(cubemapShader)
+			// Step through time
+			world.Step(timeStep, velocityIterations, positionIterations)
+		}
 
-		// Remove translation from the view matrix. i.e. the skybox never moves.
-		viewWithoutTranslation := view.Mat3().Mat4()
-		gl.UniformMatrix4fv(uViewCubemapLocation, 1, false, &viewWithoutTranslation[0])
+		{ // ----------------Draw the skybox cube (36 verts)
+			gl.UseProgram(cubemapShader)
+			// Drawing the skybox first will draw every pixel, so the screen does not
+			// need to be cleared and not depth testing
+			gl.Disable(gl.DEPTH_TEST)
 
-		gl.BindVertexArray(skyboxVAO)
-		gl.ActiveTexture(gl.TEXTURE0)
-		gl.BindTexture(gl.TEXTURE_CUBE_MAP, cubemapTexture)
-		gl.DrawArrays(gl.TRIANGLES, 0, 36)
-		//gl.BindVertexArray(0)
+			// Remove translation from the view matrix. i.e. the skybox stays in the same place.
+			viewWithoutTranslation := view.Mat3().Mat4()
+			gl.UniformMatrix4fv(uViewCubemapLocation, 1, false, &viewWithoutTranslation[0])
 
-		// ----------------------------------- Draw the model
-		// Do write to the depth buffer
-		gl.DepthMask(true)
-		gl.UseProgram(lighting)
+			gl.BindVertexArray(skyboxVAO)
+			gl.ActiveTexture(gl.TEXTURE0)
+			gl.BindTexture(gl.TEXTURE_CUBE_MAP, cubemapTexture)
+			// Draw the VAO that is currently bound
+			gl.DrawArrays(gl.TRIANGLES, 0, 36)
+		}
 
-		gl.UniformMatrix4fv(uViewLocation, 1, false, &view[0])
-		gl.UniformMatrix4fv(uModelLocation, 1, false, &model[0])
-		gl.Uniform3fv(uViewPosLocation, 1, &cam.Position[0])
+		{ // ----------------Draw the model
+			gl.UseProgram(lighting)
+			gl.Enable(gl.CULL_FACE) // Only front-facing triangles will be drawn
 
-		gl.BindVertexArray(cubeVAO)
-		gl.ActiveTexture(gl.TEXTURE0)
-		gl.BindTexture(gl.TEXTURE_2D, modelTexture.ID)
-		gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
-		//gl.BindVertexArray(0)
+			// Dynamic uniforms
+			position := boxBody.GetPosition()
+			angle := boxBody.GetAngle()
+			rotate := mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 0, 1})
+
+			translate := mgl32.Translate3D(float32(position.X), float32(position.Y), 0)
+			model := translate.Mul4(rotate)
+
+			gl.UniformMatrix4fv(uViewLocation, 1, false, &view[0])
+			gl.UniformMatrix4fv(uModelLocation, 1, false, &model[0])
+			gl.Uniform3fv(uViewPosLocation, 1, &cam.Position[0])
+
+			gl.BindVertexArray(cubeVAO)
+			gl.ActiveTexture(gl.TEXTURE0)
+			gl.BindTexture(gl.TEXTURE_2D, modelTexture.ID)
+			gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
+		}
 
 		// Swap and Poll
 		window.SwapBuffers()
