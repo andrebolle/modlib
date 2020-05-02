@@ -26,58 +26,64 @@ func setupPhysics() (*box2d.B2World, *box2d.B2Body) {
 	// 2. Create the body from the def.
 	// 3. Create a shape - Polygon, Chain, Circle
 	// 4. Create a fixture - glues body and shape. denisty, friction, restitution
+	// shape - a polygon or circle
+	// restitution - how bouncy the fixture is
+	// friction - how slippery it is
+	// density - how heavy it is in relation to its area
+	// Fixtures are used to describe the size, shape, and material properties of an object in the physics scene.
 
+	frameSize := float64(30)
 	// ----------------- Left
 	leftBodyDef := box2d.MakeB2BodyDef()
-	leftBodyDef.Position.Set(-20, 0)
+	leftBodyDef.Position.Set(-frameSize, 0)
 
 	leftBody := world.CreateBody(&leftBodyDef)
 
 	leftBox := box2d.MakeB2PolygonShape()
 
-	leftBox.SetAsBox(19.0, 5000.0)
+	leftBox.SetAsBox(10.0, 100.0)
 
-	leftBody.CreateFixture(&leftBox, 0.0)
+	leftBody.CreateFixture(&leftBox, 0)
 
 	// ----------------- Right
 	rightBodyDef := box2d.MakeB2BodyDef()
-	rightBodyDef.Position.Set(20, 0)
+	rightBodyDef.Position.Set(frameSize, 0)
 
 	rightBody := world.CreateBody(&rightBodyDef)
 
 	rightBox := box2d.MakeB2PolygonShape()
 
-	rightBox.SetAsBox(10.0, 5000.0)
+	rightBox.SetAsBox(10.0, 100.0)
 
-	rightBody.CreateFixture(&rightBox, 0.0)
+	rightBody.CreateFixture(&rightBox, 00)
 
 	// ----------------- Ground
 	groundBodyDef := box2d.MakeB2BodyDef()
-	groundBodyDef.Position.Set(0.0, -20.0)
+	groundBodyDef.Position.Set(0, -frameSize)
 
 	groundBody := world.CreateBody(&groundBodyDef)
 
 	groundBox := box2d.MakeB2PolygonShape()
 
-	groundBox.SetAsBox(5000.0, 10.0)
+	groundBox.SetAsBox(100.0, 10.0)
 
-	groundBody.CreateFixture(&groundBox, 0.0)
+	groundBody.CreateFixture(&groundBox, 0)
 
 	// ----------------- Ceiling
 	ceilingBodyDef := box2d.MakeB2BodyDef()
-	ceilingBodyDef.Position.Set(0.0, 20.0)
+	ceilingBodyDef.Position.Set(0.0, frameSize)
 
 	ceilingBody := world.CreateBody(&ceilingBodyDef)
 
 	ceilingBox := box2d.MakeB2PolygonShape()
 
-	ceilingBox.SetAsBox(5000.0, 10.0)
+	ceilingBox.SetAsBox(100.0, 10.0)
 
 	ceilingBody.CreateFixture(&ceilingBox, 0.0)
 
 	// ----------------- Box
 	boxBodyDef := box2d.MakeB2BodyDef()
-	boxBodyDef.Position.Set(0, 10)
+	boxBodyDef.Position.Set(5, 5)
 
 	boxBodyDef.Type = dynamic
 	boxBodyDef.AllowSleep = false
@@ -85,6 +91,7 @@ func setupPhysics() (*box2d.B2World, *box2d.B2Body) {
 	// Body instance
 	boxBody := world.CreateBody(&boxBodyDef)
 	boxBody.SetTransform(box2d.B2Vec2{X: rand.Float64(), Y: rand.Float64()}, rand.Float64()*2*math.Pi)
+	boxBody.SetUserData("box")
 
 	// Create a box shape
 	boxShape := box2d.MakeB2PolygonShape()
