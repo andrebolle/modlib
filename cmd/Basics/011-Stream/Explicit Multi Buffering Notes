@@ -1,0 +1,9 @@
+Explicit multiple buffering
+
+This solution is fairly simple. You simply create two or more buffer objects of the same length. 
+While you are using one buffer object, you can be modifying another. Depending on how much 
+parallelism your implementation can provide, you may need more than two buffers to make this work.
+
+The principle drawback to this solution is that it requires using a number of different buffer 
+objects (separate buffer handles). So you'll need to change which buffers you're using for 
+your GPU operations every frame.

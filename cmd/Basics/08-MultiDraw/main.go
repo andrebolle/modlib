@@ -42,7 +42,7 @@ func main() {
 	// ------------------------- Compute and set static uniforms
 	projection := mgl32.Perspective(cam.Fovy, cam.Aspect, cam.Near, cam.Far)
 
-	cubeVAO, uModelLocation, uViewLocation, uViewPosLocation, indices := setupModel("cube.obj", lighting, &projection[0])
+	cubeVAO, uModelLocation, uViewLocation, uViewPosLocation, indices := setupModel("cubewithhole.obj", lighting, &projection[0])
 
 	skyboxVAO, uViewCubemapLocation := setupSkybox(cubemapShader, &projection[0])
 
