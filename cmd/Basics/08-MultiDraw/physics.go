@@ -9,9 +9,10 @@ import (
 
 // Short names
 //kinetic := box2d.B2BodyType.B2_kinematicBody
-var DYNAMIC uint8 = box2d.B2BodyType.B2_dynamicBody
 
-type Radius float32
+// DYNAMIC DYNAMIC
+var dynamic uint8 = box2d.B2BodyType.B2_dynamicBody
+var static uint8 = box2d.B2BodyType.B2_staticBody
 
 func initBox2D() box2d.B2World {
 	// Box2D is tuned for meters, kilograms, and seconds.
@@ -23,7 +24,7 @@ func initBox2D() box2d.B2World {
 	return world
 }
 
-func addFrame(world *box2d.B2World) {
+func addFrame(world *box2d.B2World, frameSize float64) {
 	// A place to store bodies by name
 	//characters := make(map[string]*box2d.B2Body)
 
@@ -37,7 +38,6 @@ func addFrame(world *box2d.B2World) {
 	// density - how heavy it is in relation to its area
 	// Fixtures are used to describe the size, shape, and material properties of an object in the physics scene.
 
-	frameSize := float64(30)
 	// ----------------- Left
 	leftBodyDef := box2d.MakeB2BodyDef()
 	leftBodyDef.Position.Set(-frameSize, 0)
@@ -92,13 +92,13 @@ func addBox(world *box2d.B2World, pos, vel, size box2d.B2Vec2) *box2d.B2Body {
 	boxBodyDef := box2d.MakeB2BodyDef()
 	boxBodyDef.Position.Set(pos.X, pos.Y)
 
-	boxBodyDef.Type = DYNAMIC
+	boxBodyDef.Type = dynamic
 	boxBodyDef.AllowSleep = false
 	boxBodyDef.LinearVelocity.Set(vel.X, vel.Y)
 	// Body instance
 	boxBody := world.CreateBody(&boxBodyDef)
 	boxBody.SetTransform(box2d.B2Vec2{X: rand.Float64(), Y: rand.Float64()}, rand.Float64()*2*math.Pi)
-	boxBody.SetUserData('c')
+	boxBody.SetUserData("box")
 
 	// Create a box/circle shape
 	boxShape := box2d.MakeB2PolygonShape()
@@ -117,13 +117,27 @@ func addBox(world *box2d.B2World, pos, vel, size box2d.B2Vec2) *box2d.B2Body {
 	return boxBody
 }
 
-func setupPhysics() (*box2d.B2World, *box2d.B2Body) {
+func setupPhysics() *box2d.B2World {
 
 	world := initBox2D()
+	frameSize := float64(48)
+	addFrame(&world, frameSize)
 
-	addFrame(&world)
+	// boxBody := addBox(&world, box2d.B2Vec2{X: 5, Y: 5}, box2d.B2Vec2{X: 4, Y: 2}, box2d.B2Vec2{X: 1, Y: 1})
+	// boxBody := addBox(&world, box2d.B2Vec2{X: 5, Y: 5}, box2d.B2Vec2{X: 4, Y: 2}, box2d.B2Vec2{X: 1, Y: 1})
+	addBox(&world, box2d.B2Vec2{X: 5, Y: 5}, box2d.B2Vec2{X: 4, Y: 2}, box2d.B2Vec2{X: 1, Y: 1})
+	addBox(&world, box2d.B2Vec2{X: 7, Y: 7}, box2d.B2Vec2{X: 5, Y: 2}, box2d.B2Vec2{X: 1, Y: 1})
+	addBox(&world, box2d.B2Vec2{X: 3, Y: 5}, box2d.B2Vec2{X: -4, Y: 2}, box2d.B2Vec2{X: 1, Y: 1})
+	addBox(&world, box2d.B2Vec2{X: 1, Y: 7}, box2d.B2Vec2{X: 5, Y: -2}, box2d.B2Vec2{X: 1, Y: 1})
+	addBox(&world, box2d.B2Vec2{X: -5, Y: 5}, box2d.B2Vec2{X: 4, Y: 2}, box2d.B2Vec2{X: 1, Y: 1})
+	addBox(&world, box2d.B2Vec2{X: -7, Y: 7}, box2d.B2Vec2{X: 5, Y: 2}, box2d.B2Vec2{X: 1, Y: 1})
+	addBox(&world, box2d.B2Vec2{X: -3, Y: 5}, box2d.B2Vec2{X: -4, Y: 2}, box2d.B2Vec2{X: 1, Y: 1})
+	addBox(&world, box2d.B2Vec2{X: -1, Y: 7}, box2d.B2Vec2{X: 5, Y: -2}, box2d.B2Vec2{X: 1, Y: 1})
 
-	boxBody := addBox(&world, box2d.B2Vec2{X: 5, Y: 5}, box2d.B2Vec2{X: 4, Y: 2}, box2d.B2Vec2{X: 1, Y: 1})
+	for i := float64(0); i < 100; i++ {
+		addBox(&world, box2d.B2Vec2{X: (rand.Float64() - 0.5) * frameSize, Y: 5}, box2d.B2Vec2{X: 4, Y: 2}, box2d.B2Vec2{X: 1, Y: 1})
+
+	}
 
 	// physObjList := world.GetBodyList()
 	// for i := 0; physObjList != nil; i++ {
@@ -131,6 +145,6 @@ func setupPhysics() (*box2d.B2World, *box2d.B2Body) {
 	// 	physObjList = physObjList.GetNext()
 	// }
 
-	return &world, boxBody
+	return &world // , boxBody
 
 }

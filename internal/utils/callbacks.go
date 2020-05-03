@@ -46,21 +46,25 @@ func MoveCamera(win *glfw.Window, cam *Camera, action glfw.Action, key glfw.Key,
 		cam.Position = cam.Position.Add(cam.Right.Mul(-dt))
 	}
 
+	// Backward
 	state = win.GetKey(glfw.KeyS)
 	if state == glfw.Press {
 		cam.Position = cam.Position.Add(cam.Forward.Mul(-dt))
 	}
 
+	// Right
 	state = win.GetKey(glfw.KeyD)
 	if state == glfw.Press {
 		cam.Position = cam.Position.Add(cam.Right.Mul(dt))
 	}
 
+	// Towards the sky
 	state = win.GetKey(glfw.KeyE)
 	if state == glfw.Press {
 		cam.Position = cam.Position.Add(mgl32.Vec3{0, dt, 0})
 	}
 
+	// Towards the ground
 	state = win.GetKey(glfw.KeyC)
 	if state == glfw.Press {
 		cam.Position = cam.Position.Add(mgl32.Vec3{0, -dt, 0})
@@ -72,25 +76,6 @@ func MoveCamera(win *glfw.Window, cam *Camera, action glfw.Action, key glfw.Key,
 		cam.Paused = !cam.Paused
 	}
 
-	// // Check for Key Presses and repeats
-	// if action == glfw.Press || action == glfw.Repeat {
-	// 	switch key {
-	// 	// case glfw.KeyW:
-	// 	// 	cam.Position = cam.Position.Add(cam.Forward.Mul(dt))
-	// 	// case glfw.KeyS:
-	// 	// 	cam.Position = cam.Position.Add(cam.Forward.Mul(-dt))
-	// 	// case glfw.KeyA:
-	// 	// 	cam.Position = cam.Position.Add(cam.Right.Mul(-dt))
-	// 	// case glfw.KeyD:
-	// 	// 	cam.Position = cam.Position.Add(cam.Right.Mul(dt))
-	// 	// case glfw.KeyE:
-	// 	// 	cam.Position = cam.Position.Add(mgl32.Vec3{0, dt, 0})
-	// 	// case glfw.KeyC:
-	// 	// 	cam.Position = cam.Position.Add(mgl32.Vec3{0, -dt, 0})
-	// 	case glfw.KeySpace:
-	// 		cam.Paused = !cam.Paused
-	// 	}
-	// }
 }
 
 // SetPitchYawCallback SetPitchYawCallback

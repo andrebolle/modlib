@@ -8,11 +8,11 @@ import (
 	"github.com/purelazy/modlib/internal/utils"
 )
 
-func setupModel(lighting uint32, projection *float32) (uint32, int32, int32, int32, *[]uint32) {
+func setupModel(file string, lighting uint32, projection *float32) (uint32, int32, int32, int32, *[]uint32) {
 	var uModelLocation, uViewLocation, uViewPosLocation int32
 
 	// Load the model geometry
-	floats, indices, stride, posOffset, texOffset, normOffset := utils.OJBLoader("sphere.obj")
+	floats, indices, stride, posOffset, texOffset, normOffset := utils.OJBLoader(file)
 
 	// Use program to get locations
 	gl.UseProgram(lighting)
@@ -32,7 +32,7 @@ func setupModel(lighting uint32, projection *float32) (uint32, int32, int32, int
 	// ------------------------- Compute and set static uniforms
 	// := mgl32.Perspective(cam.Fovy, cam.Aspect, cam.Near, cam.Far)
 	lightColor := mgl32.Vec3{1, 1, 1}
-	lightPos := mgl32.Vec3{3, 3, 3}
+	lightPos := mgl32.Vec3{3, 3, -13}
 
 	gl.UniformMatrix4fv(uProjectionLocation, 1, false, projection)
 	gl.Uniform1i(uTexLocation, 0)

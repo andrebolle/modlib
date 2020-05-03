@@ -20,17 +20,18 @@ import (
 func main() {
 
 	// Create the OpenGL context, window and camera
-	window, cam := utils.GetWindowAndCamera(800, 600)
+	window, cam := utils.GetWindowAndCamera(1680-1, 1050-1)
 	defer window.Destroy()
 
 	// Set up Box2D world
-	world, boxBody := setupPhysics()
+	world := setupPhysics()
+	world2 := setupPhysics()
 
-	// Load textures
-	cubemapTexture := utils.Cubemap(utils.Faces)
-	gl.BindTexture(gl.TEXTURE_CUBE_MAP, cubemapTexture)
+	// Load Textures and Cubemap (aka Skybox)
 	modelTexture := utils.NewTexture("square.png")
 	gl.BindTexture(gl.TEXTURE_2D, modelTexture.ID)
+	cubemapTexture := utils.Cubemap(utils.Faces)
+	gl.BindTexture(gl.TEXTURE_CUBE_MAP, cubemapTexture)
 
 	// Compile model and cubemap shaders
 	lighting := utils.NewProgram(utils.ReadShader("Lighting.vs.glsl"), utils.ReadShader("Lighting.fs.glsl"))
@@ -41,7 +42,7 @@ func main() {
 	// ------------------------- Compute and set static uniforms
 	projection := mgl32.Perspective(cam.Fovy, cam.Aspect, cam.Near, cam.Far)
 
-	cubeVAO, uModelLocation, uViewLocation, uViewPosLocation, indices := setupModel(lighting, &projection[0])
+	cubeVAO, uModelLocation, uViewLocation, uViewPosLocation, indices := setupModel("cube.obj", lighting, &projection[0])
 
 	skyboxVAO, uViewCubemapLocation := setupSkybox(cubemapShader, &projection[0])
 
@@ -49,18 +50,6 @@ func main() {
 
 		// View is used in multiple programs
 		view := mgl32.LookAtV(cam.Position, cam.Position.Add(cam.Forward), cam.Up)
-
-		{ // ----------------Physics
-			// Reverse gravity
-			if cam.Paused {
-				boxBody.SetGravityScale(-1)
-			} else {
-				boxBody.SetGravityScale(1)
-			}
-
-			// Step through time
-			world.Step(1.0/60.0, 8, 3)
-		}
 
 		{ // ----------------Draw the skybox (36 verts)
 			gl.UseProgram(cubemapShader)
@@ -77,29 +66,88 @@ func main() {
 			gl.DrawArrays(gl.TRIANGLES, 0, 36)
 		}
 
-		{ // ----------------Draw the model
-			gl.UseProgram(lighting)
-			gl.Enable(gl.CULL_FACE) // Only front-facing triangles will be drawn
+		// Step through time
+		world.Step(1.0/60.0, 8, 3)
+		world2.Step(1.0/60.0, 8, 3)
 
-			// Calculate uniforms
-			position := boxBody.GetPosition()
-			angle := boxBody.GetAngle()
-			rotate := mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 0, 1})
-			translate := mgl32.Translate3D(float32(position.X), float32(position.Y), 0)
-			model := translate.Mul4(rotate)
+		bodies := world.GetBodyList()
 
-			// Set uniforms
-			gl.UniformMatrix4fv(uViewLocation, 1, false, &view[0])
-			gl.UniformMatrix4fv(uModelLocation, 1, false, &model[0])
-			gl.Uniform3fv(uViewPosLocation, 1, &cam.Position[0])
+		// ----------------Draw the bodies
+		gl.Enable(gl.DEPTH_TEST)
+		gl.Clear(gl.DEPTH_BUFFER_BIT)
+		for b := bodies; b != nil; b = b.GetNext() {
+			if b.GetUserData() == "box" {
 
-			// Arm GPU with VAO and Render
-			gl.BindVertexArray(cubeVAO)
-			gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
+				gl.UseProgram(lighting)
+				gl.Enable(gl.CULL_FACE) // Only front-facing triangles will be drawn
+
+				// Calculate uniforms
+				// position := boxBody.GetPosition()
+				// angle := boxBody.GetAngle()
+				position := b.GetPosition()
+				angle := b.GetAngle()
+				rotate := mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 0, 1})
+				translate := mgl32.Translate3D(float32(position.X), float32(position.Y), 0)
+				model := translate.Mul4(rotate)
+
+				// Set uniforms
+				gl.UniformMatrix4fv(uViewLocation, 1, false, &view[0])
+				gl.UniformMatrix4fv(uModelLocation, 1, false, &model[0])
+				gl.Uniform3fv(uViewPosLocation, 1, &cam.Position[0])
+
+				// Arm GPU with VAO and Render
+				gl.BindVertexArray(cubeVAO)
+				gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
+			}
+		}
+
+		// ----------------Draw a second set
+		bodies = world2.GetBodyList()
+		for b := bodies; b != nil; b = b.GetNext() {
+			if b.GetUserData() == "box" {
+
+				gl.UseProgram(lighting)
+				gl.Enable(gl.CULL_FACE) // Only front-facing triangles will be drawn
+
+				// Calculate uniforms
+				// position := boxBody.GetPosition()
+				// angle := boxBody.GetAngle()
+				position := b.GetPosition()
+				angle := b.GetAngle()
+				rotate := mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 0, 1})
+				translate := mgl32.Translate3D(float32(position.X), float32(position.Y), 20)
+				model := translate.Mul4(rotate)
+
+				// Set uniforms
+				gl.UniformMatrix4fv(uViewLocation, 1, false, &view[0])
+				gl.UniformMatrix4fv(uModelLocation, 1, false, &model[0])
+				gl.Uniform3fv(uViewPosLocation, 1, &cam.Position[0])
+
+				// Arm GPU with VAO and Render
+				gl.BindVertexArray(cubeVAO)
+				gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
+
+				// Draw the previous one again, with coords negated
+				position = b.GetPosition().OperatorNegate()
+				//angle := b.GetAngle()
+				//rotate := mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 0, 1})
+				translate = mgl32.Translate3D(float32(position.X), float32(position.Y), 50)
+				model = translate.Mul4(rotate)
+
+				// Set uniforms
+				gl.UniformMatrix4fv(uViewLocation, 1, false, &view[0])
+				gl.UniformMatrix4fv(uModelLocation, 1, false, &model[0])
+				gl.Uniform3fv(uViewPosLocation, 1, &cam.Position[0])
+
+				// Arm GPU with VAO and Render
+				gl.BindVertexArray(cubeVAO)
+				gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
+			}
 		}
 
 		// Swap and Poll
 		window.SwapBuffers()
 		glfw.PollEvents()
+
 	}
 }
