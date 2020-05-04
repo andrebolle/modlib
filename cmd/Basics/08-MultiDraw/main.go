@@ -20,12 +20,12 @@ import (
 func main() {
 
 	// Create the OpenGL context, window and camera
-	window, cam := utils.GetWindowAndCamera(1680-1, 1050-1)
+	//window, cam := utils.GetWindowAndCamera(1680-1, 1050-1)
+	window, cam := utils.GetWindowAndCamera(840, 525)
 	defer window.Destroy()
 
 	// Set up Box2D world
 	world := setupPhysics()
-	world2 := setupPhysics()
 
 	// Load Textures and Cubemap (aka Skybox)
 	modelTexture := utils.NewTexture("square.png")
@@ -68,22 +68,20 @@ func main() {
 
 		// Step through time
 		world.Step(1.0/60.0, 8, 3)
-		world2.Step(1.0/60.0, 8, 3)
 
 		bodies := world.GetBodyList()
 
 		// ----------------Draw the bodies
 		gl.Enable(gl.DEPTH_TEST)
 		gl.Clear(gl.DEPTH_BUFFER_BIT)
+		gl.UseProgram(lighting)
+		gl.Enable(gl.CULL_FACE) // Only front-facing triangles will be drawn
+		// Arm GPU with VAO and Render
+		gl.BindVertexArray(cubeVAO)
 		for b := bodies; b != nil; b = b.GetNext() {
 			if b.GetUserData() == "box" {
 
-				gl.UseProgram(lighting)
-				gl.Enable(gl.CULL_FACE) // Only front-facing triangles will be drawn
-
-				// Calculate uniforms
-				// position := boxBody.GetPosition()
-				// angle := boxBody.GetAngle()
+				// Version 1 of this box
 				position := b.GetPosition()
 				angle := b.GetAngle()
 				rotate := mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 0, 1})
@@ -95,43 +93,30 @@ func main() {
 				gl.UniformMatrix4fv(uModelLocation, 1, false, &model[0])
 				gl.Uniform3fv(uViewPosLocation, 1, &cam.Position[0])
 
-				// Arm GPU with VAO and Render
-				gl.BindVertexArray(cubeVAO)
 				gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
-			}
-		}
 
-		// ----------------Draw a second set
-		bodies = world2.GetBodyList()
-		for b := bodies; b != nil; b = b.GetNext() {
-			if b.GetUserData() == "box" {
+				// Version 2 of this box
+				translate = mgl32.Translate3D(float32(position.Y), float32(position.X), 20)
+				model = translate.Mul4(rotate)
 
-				gl.UseProgram(lighting)
-				gl.Enable(gl.CULL_FACE) // Only front-facing triangles will be drawn
-
-				// Calculate uniforms
-				// position := boxBody.GetPosition()
-				// angle := boxBody.GetAngle()
-				position := b.GetPosition()
-				angle := b.GetAngle()
-				rotate := mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 0, 1})
-				translate := mgl32.Translate3D(float32(position.X), float32(position.Y), 20)
-				model := translate.Mul4(rotate)
-
-				// Set uniforms
 				gl.UniformMatrix4fv(uViewLocation, 1, false, &view[0])
 				gl.UniformMatrix4fv(uModelLocation, 1, false, &model[0])
 				gl.Uniform3fv(uViewPosLocation, 1, &cam.Position[0])
 
-				// Arm GPU with VAO and Render
-				gl.BindVertexArray(cubeVAO)
 				gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
 
-				// Draw the previous one again, with coords negated
-				position = b.GetPosition().OperatorNegate()
-				//angle := b.GetAngle()
-				//rotate := mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 0, 1})
-				translate = mgl32.Translate3D(float32(position.X), float32(position.Y), 50)
+				// Version 3 of this box
+				translate = mgl32.Translate3D(float32(-position.Y), float32(position.X), 40)
+				model = translate.Mul4(rotate)
+
+				gl.UniformMatrix4fv(uViewLocation, 1, false, &view[0])
+				gl.UniformMatrix4fv(uModelLocation, 1, false, &model[0])
+				gl.Uniform3fv(uViewPosLocation, 1, &cam.Position[0])
+
+				gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
+
+				// Version 4 of this box
+				translate = mgl32.Translate3D(float32(-position.X), float32(position.Y), 60)
 				model = translate.Mul4(rotate)
 
 				// Set uniforms
@@ -139,9 +124,8 @@ func main() {
 				gl.UniformMatrix4fv(uModelLocation, 1, false, &model[0])
 				gl.Uniform3fv(uViewPosLocation, 1, &cam.Position[0])
 
-				// Arm GPU with VAO and Render
-				gl.BindVertexArray(cubeVAO)
 				gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
+
 			}
 		}
 
