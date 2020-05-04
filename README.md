@@ -4,8 +4,26 @@ Using Go to write OpenGL 4.6 core programs.
 
 Topics covered include:
 
-GLFW: Cross-platform Graphics Library FrameWork
+# OpenGL
+
+Objects: Vertex Arrays, Element Arrays, Textures, Cubemaps
+
+GLSL: Vertex and Fragment shaders and lighting
+
+# Go
+
+Modules
+
+Function definitions, basic types, slices
+
+# Packages used
 
 Box2D: 2D physics engine
 
-GLSL: Vertex and Fragment shaders and lighting
+GLFW: Cross-platform Graphics Library FrameWork
+
+
+
+
+
+
