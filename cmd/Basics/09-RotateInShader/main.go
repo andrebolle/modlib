@@ -43,7 +43,8 @@ func main() {
 	projection := mgl32.Perspective(cam.Fovy, cam.Aspect, cam.Near, cam.Far)
 
 	//cubeVAO, indices, uniLocs := utils.SetupModel("cubewithhole.obj", lighting, &projection[0])
-	vao := utils.SetupModel("cubewithhole.obj", lighting, &projection[0])
+	nutVAO := utils.SetupModel("cubewithhole.obj", lighting, &projection[0])
+	sphereVAO := utils.SetupModel("sphere.obj", lighting, &projection[0])
 
 	skyboxVAO, uViewCubemapLocation := setupSkybox(cubemapShader, &projection[0])
 
@@ -79,20 +80,22 @@ func main() {
 		gl.Enable(gl.CULL_FACE) // Only front-facing triangles will be drawn
 
 		// Arm GPU with VAO and Render
-		gl.BindVertexArray(vao.CubeVAO)
-		gl.UniformMatrix4fv(vao.UniLocs["uView"], 1, false, &view[0])
-		gl.Uniform3fv(vao.UniLocs["uViewPos"], 1, &cam.Position[0])
+		//gl.BindVertexArray(nutVAO.CubeVAO)
+		gl.UniformMatrix4fv(nutVAO.UniLocs["uView"], 1, false, &view[0])
+		gl.Uniform3fv(nutVAO.UniLocs["uViewPos"], 1, &cam.Position[0])
 
 		for b := bodies; b != nil; b = b.GetNext() {
 			if b.GetUserData() == "box" {
 				// Layer 1 of this box
 				// Send Box2D info
-				gl.Uniform4f(vao.UniLocs["uPosAngle"], float32(b.GetPosition().X), float32(b.GetPosition().Y), 0, float32(b.GetAngle()))
-				gl.DrawElements(gl.TRIANGLES, int32(len(*vao.Indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
+				gl.BindVertexArray(nutVAO.Vao)
+				gl.Uniform4f(nutVAO.UniLocs["uPosAngle"], float32(b.GetPosition().X), float32(b.GetPosition().Y), 0, float32(b.GetAngle()))
+				gl.DrawElements(gl.TRIANGLES, int32(len(*nutVAO.Indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
 
 				// Layer 2 of this box
-				gl.Uniform4f(vao.UniLocs["uPosAngle"], float32(b.GetPosition().Y), float32(b.GetPosition().X), 20, float32(b.GetAngle()))
-				gl.DrawElements(gl.TRIANGLES, int32(len(*vao.Indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
+				gl.BindVertexArray(sphereVAO.Vao)
+				gl.Uniform4f(nutVAO.UniLocs["uPosAngle"], float32(b.GetPosition().Y), float32(b.GetPosition().X), 20, float32(b.GetAngle()))
+				gl.DrawElements(gl.TRIANGLES, int32(len(*sphereVAO.Indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
 			}
 		}
 

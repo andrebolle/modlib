@@ -25,7 +25,7 @@ func attrLocs(program uint32, names []string) map[string]uint32 {
 
 // Vao Vao
 type Vao struct {
-	CubeVAO, CubeVBO, CubeEBO          uint32
+	Vao, Vbo, Ebo                      uint32
 	Indices                            *[]uint32
 	AttrLocs                           map[string]uint32
 	UniLocs                            map[string]int32
@@ -66,10 +66,10 @@ func SetupModel(file string, lighting uint32, projection *float32) *Vao {
 	gl.Uniform3fv(vao.UniLocs["uLightColor"], 1, &lightColor[0])
 
 	// Create & Bind VAO and its buffer
-	gl.GenVertexArrays(1, &vao.CubeVAO)
-	gl.BindVertexArray(vao.CubeVAO)
-	gl.GenBuffers(1, &vao.CubeVBO)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vao.CubeVBO)
+	gl.GenVertexArrays(1, &vao.Vao)
+	gl.BindVertexArray(vao.Vao)
+	gl.GenBuffers(1, &vao.Vbo)
+	gl.BindBuffer(gl.ARRAY_BUFFER, vao.Vbo)
 
 	// For each atrribute {EnableVertexAttribArray, VertexAttribPointer}
 	gl.EnableVertexAttribArray(vao.AttrLocs["aPos"])
@@ -79,8 +79,8 @@ func SetupModel(file string, lighting uint32, projection *float32) *Vao {
 	gl.EnableVertexAttribArray(vao.AttrLocs["aNormal"])
 	gl.VertexAttribPointer(vao.AttrLocs["aNormal"], 3, gl.FLOAT, false, vao.Stride, vao.NormalOffset)
 
-	gl.GenBuffers(1, &vao.CubeEBO)
-	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, vao.CubeEBO)
+	gl.GenBuffers(1, &vao.Ebo)
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, vao.Ebo)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(*vao.Indices)*4, unsafe.Pointer(&(*vao.Indices)[0]), gl.STATIC_DRAW)
 
 	gl.BufferData(gl.ARRAY_BUFFER, len(obj.Coord)*4, gl.Ptr(&(obj.Coord)[0]), gl.STATIC_DRAW)
