@@ -42,7 +42,8 @@ func main() {
 	// ------------------------- Compute and set static uniforms
 	projection := mgl32.Perspective(cam.Fovy, cam.Aspect, cam.Near, cam.Far)
 
-	cubeVAO, indices, uniLocs := setupModel("cubewithhole.obj", lighting, &projection[0])
+	//cubeVAO, indices, uniLocs := utils.SetupModel("cubewithhole.obj", lighting, &projection[0])
+	vao := utils.SetupModel("cubewithhole.obj", lighting, &projection[0])
 
 	skyboxVAO, uViewCubemapLocation := setupSkybox(cubemapShader, &projection[0])
 
@@ -77,51 +78,22 @@ func main() {
 		gl.UseProgram(lighting)
 		gl.Enable(gl.CULL_FACE) // Only front-facing triangles will be drawn
 		// Arm GPU with VAO and Render
-		gl.BindVertexArray(cubeVAO)
+		gl.BindVertexArray(vao.CubeVAO)
 		for b := bodies; b != nil; b = b.GetNext() {
 			if b.GetUserData() == "box" {
 
 				// Version 1 of this box
-				position, angle := b.GetPosition(), b.GetAngle()
-				rotate := mgl32.HomogRotate3D(float32(angle), mgl32.Vec3{0, 0, 1})
-				translate := mgl32.Translate3D(float32(position.X), float32(position.Y), 0)
-				model := translate.Mul4(rotate)
+				gl.UniformMatrix4fv(vao.UniLocs["uView"], 1, false, &view[0])
+				gl.Uniform3fv(vao.UniLocs["uViewPos"], 1, &cam.Position[0])
+				// Send Box2D
+				gl.Uniform4f(vao.UniLocs["uPosAngle"], float32(b.GetPosition().X), float32(b.GetPosition().Y), 0, float32(b.GetAngle()))
 
-				// Set uniforms
-				//gl.UniformMatrix4fv(uViewLocation, 1, false, &view[0])
-				gl.UniformMatrix4fv(uniLocs["uView"], 1, false, &view[0])
-				gl.UniformMatrix4fv(uniLocs["uModel"], 1, false, &model[0])
-				gl.Uniform3fv(uniLocs["uViewPos"], 1, &cam.Position[0])
-				// uAngleLocation
-				gl.Uniform1f(uniLocs["uAngle"], float32(angle))
-
-				gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
+				gl.DrawElements(gl.TRIANGLES, int32(len(*vao.Indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
 
 				// // Version 2 of this box
 				// translate = mgl32.Translate3D(float32(position.Y), float32(position.X), 20)
 				// model = translate.Mul4(rotate)
 
-				// gl.UniformMatrix4fv(uniLocs["uView"], 1, false, &view[0])
-				// gl.UniformMatrix4fv(uModelLocation, 1, false, &model[0])
-				// gl.Uniform3fv(uViewPosLocation, 1, &cam.Position[0])
-
-				// gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
-
-				// // Version 3 of this box
-				// translate = mgl32.Translate3D(float32(-position.Y), float32(position.X), 40)
-				// model = translate.Mul4(rotate)
-
-				// gl.UniformMatrix4fv(uniLocs["uView"], 1, false, &view[0])
-				// gl.UniformMatrix4fv(uModelLocation, 1, false, &model[0])
-				// gl.Uniform3fv(uViewPosLocation, 1, &cam.Position[0])
-
-				// gl.DrawElements(gl.TRIANGLES, int32(len(*indices)), gl.UNSIGNED_INT, gl.PtrOffset(0))
-
-				// // Version 4 of this box
-				// translate = mgl32.Translate3D(float32(-position.X), float32(position.Y), 60)
-				// model = translate.Mul4(rotate)
-
-				// // Set uniforms
 				// gl.UniformMatrix4fv(uniLocs["uView"], 1, false, &view[0])
 				// gl.UniformMatrix4fv(uModelLocation, 1, false, &model[0])
 				// gl.Uniform3fv(uViewPosLocation, 1, &cam.Position[0])

@@ -8,7 +8,7 @@ out vec3 fPos;
 out vec2 fUV;
 out vec3 fNormal;
 
-uniform float uAngle;
+uniform vec4 uPosAngle;
 uniform mat4 uModel;
 uniform mat4 uView;
 uniform mat4 uProjection;
@@ -32,9 +32,16 @@ mat4 homogRotate3D(float angle, vec3 axis) {
 
 void main()
 {
-    mat4 rotationMatrix = homogRotate3D(uAngle, vec3(0,0,1));
     fUV = aUV;
-    fPos = vec3(uModel * vec4(aPos, 1.0));
-    fNormal = mat3(transpose(inverse(uModel))) * aNormal;  
+
+    mat4 translate3D = translate3D(uPosAngle.x, uPosAngle.y, uPosAngle.z);
+    mat4 homogRotate3D = homogRotate3D(uPosAngle.w, vec3(0,0,1));
+    mat4 model = translate3D * homogRotate3D;
+
+
+    // fPos = vec3(uModel * vec4(aPos, 1.0));
+    // fNormal = mat3(transpose(inverse(uModel))) * aNormal;  
+    fPos = vec3(model * vec4(aPos, 1.0));
+    fNormal = mat3(transpose(inverse(model))) * aNormal;  
     gl_Position = uProjection * uView * vec4(fPos, 1.0);
 }

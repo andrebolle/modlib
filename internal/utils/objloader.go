@@ -1,11 +1,10 @@
 package utils
 
 import (
-	"fmt"
-
 	"github.com/udhos/gwob"
 )
 
+// Array of indices (+ve) defined with []int
 /*
 type Obj struct {
 	Indices 				[]int
@@ -25,38 +24,38 @@ type Obj struct {
 */
 
 // OJBLoader OJBLoader
-func OJBLoader(filename string) (*[]float32, *[]uint32, int, int, int, int) {
+func OJBLoader(filename string) (*gwob.Obj, *[]uint32) {
 
 	options := &gwob.ObjParserOptions{} // parser options
 
-	o, errObj := gwob.NewObjFromFile(filename, options) // parse/load OBJ
+	obj, errObj := gwob.NewObjFromFile(filename, options) // parse/load OBJ
 
 	//fmt.Println(o, errObj)
 	if errObj != nil {
 		panic(errObj)
 	}
 
-	fmt.Println("Indices 			", len(o.Indices))
-	fmt.Println("Coords   			", len(o.Coord))
-	fmt.Println("Mtllib  			", o.Mtllib)
-	fmt.Println("Groups  			", len(o.Groups))
-	fmt.Println("BigIndexFound  	", o.BigIndexFound)
-	fmt.Println("TextCoordFound 	", o.TextCoordFound)
-	fmt.Println("NormCoordFound 	", o.NormCoordFound)
-	fmt.Println("StrideSize         ", o.StrideSize)
-	fmt.Println("StrideOffsetPosition", o.StrideOffsetPosition)
-	fmt.Println("StrideOffsetTexture", o.StrideOffsetTexture)
-	fmt.Println("StrideOffsetNormal", o.StrideOffsetNormal)
+	// fmt.Println("Indices 			", len(obj.Indices))
+	// fmt.Println("Coords   			", len(obj.Coord))
+	// fmt.Println("Mtllib  			", obj.Mtllib)
+	// fmt.Println("Groups  			", len(obj.Groups))
+	// fmt.Println("BigIndexFound  	", obj.BigIndexFound)
+	// fmt.Println("TextCoordFound 	", obj.TextCoordFound)
+	// fmt.Println("NormCoordFound 	", obj.NormCoordFound)
+	// fmt.Println("StrideSize         ", obj.StrideSize)
+	// fmt.Println("StrideOffsetPosition", obj.StrideOffsetPosition)
+	// fmt.Println("StrideOffsetTexture", obj.StrideOffsetTexture)
+	// fmt.Println("StrideOffsetNormal", obj.StrideOffsetNormal)
 
 	// fmt.Print(o.Indices)
 
 	uIntIndices := make([]uint32, 0)
 	// Convert index "ints" to "uints"
-	for i := range o.Indices {
-		uIntIndices = append(uIntIndices, uint32(o.Indices[i]))
+	for i := range obj.Indices {
+		uIntIndices = append(uIntIndices, uint32(obj.Indices[i]))
 	}
 
 	//return &o.Coord, &o.Indices, o.StrideSize, o.StrideOffsetPosition, o.StrideOffsetTexture, o.StrideOffsetNormal
-	return &o.Coord, &uIntIndices, o.StrideSize, o.StrideOffsetPosition, o.StrideOffsetTexture, o.StrideOffsetNormal
-
+	//return &obj.Coord, &uIntIndices, obj.StrideSize, obj.StrideOffsetPosition, obj.StrideOffsetTexture, obj.StrideOffsetNormal
+	return obj, &uIntIndices
 }
