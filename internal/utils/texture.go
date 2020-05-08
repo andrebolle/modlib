@@ -32,14 +32,14 @@ func LoadRGBA(file string) *image.RGBA {
 	}
 
 	// Decode the image
-	img, formatName, err := image.Decode(imgFile)
+	img, _, err := image.Decode(imgFile)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("Image Filename:", file)
-	fmt.Println("Image format is", formatName)
-	fmt.Println("Image Bounds is", img.Bounds())
+	// fmt.Println("Image Filename:", file)
+	// fmt.Println("Image format is", formatName)
+	// fmt.Println("Image Bounds is", img.Bounds())
 
 	// NewRGBA returns a new RGBA image with the given bounds.
 	rgba := image.NewRGBA(img.Bounds())
