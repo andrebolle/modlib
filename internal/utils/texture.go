@@ -53,16 +53,37 @@ func LoadRGBA(file string) *image.RGBA {
 	return rgba
 }
 
-// NewTexture NewTexture
-func NewTexture(file string) Texture {
-	var texture Texture
-	texture.RGBA = LoadRGBA(file)
-	texture.Width = int32(texture.RGBA.Rect.Size().X)
-	texture.Height = int32(texture.RGBA.Rect.Size().Y)
+// // NewTexture NewTexture
+// func NewTexture(file string) Texture {
+// 	var texture Texture
+// 	texture.RGBA = LoadRGBA(file)
+// 	texture.Width = int32(texture.RGBA.Rect.Size().X)
+// 	texture.Height = int32(texture.RGBA.Rect.Size().Y)
 
-	gl.GenTextures(1, &texture.ID)
+// 	gl.GenTextures(1, &texture.ID)
+// 	gl.ActiveTexture(gl.TEXTURE0)
+// 	gl.BindTexture(gl.TEXTURE_2D, texture.ID)
+
+// 	// Set basic filter and wrap values
+// 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+// 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+// 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+// 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+
+// 	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, texture.Width,
+// 		texture.Height, 0, gl.RGBA, gl.UNSIGNED_BYTE, unsafe.Pointer(&texture.RGBA.Pix[0]))
+// 	return texture
+// }
+// NewTexture NewTexture
+func NewTexture(file string) uint32 {
+	RGBA := LoadRGBA(file)
+	width := int32(RGBA.Rect.Size().X)
+	height := int32(RGBA.Rect.Size().Y)
+
+	var texture uint32
+	gl.GenTextures(1, &texture)
 	gl.ActiveTexture(gl.TEXTURE0)
-	gl.BindTexture(gl.TEXTURE_2D, texture.ID)
+	gl.BindTexture(gl.TEXTURE_2D, texture)
 
 	// Set basic filter and wrap values
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
@@ -70,7 +91,7 @@ func NewTexture(file string) Texture {
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
 	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 
-	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, texture.Width,
-		texture.Height, 0, gl.RGBA, gl.UNSIGNED_BYTE, unsafe.Pointer(&texture.RGBA.Pix[0]))
+	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, width,
+		height, 0, gl.RGBA, gl.UNSIGNED_BYTE, unsafe.Pointer(&RGBA.Pix[0]))
 	return texture
 }

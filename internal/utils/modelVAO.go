@@ -46,10 +46,10 @@ func findAttrAndUniLocs(vao *Vao, program uint32, projection *float32) {
 }
 
 // GetPositionAndAngle GetPositionAndAngle
-func GetPositionAndAngle(world *box2d.B2World) *[]float32 {
+func GetPositionAndAngle(world *box2d.B2World, name string) *[]float32 {
 	posAndAngle := make([]float32,0)
 	for b := world.GetBodyList(); b != nil; b = b.GetNext() {
-		if b.GetUserData() == "box" {
+		if b.GetUserData() == name {
 			posAndAngle = append(posAndAngle, float32(b.GetPosition().X), float32(b.GetPosition().Y), float32(b.GetAngle()) )
 		}
 	}
@@ -83,7 +83,7 @@ func SetupModel(file string, program uint32, projection *float32, world *box2d.B
 	vao.Pos, vao.UVs, vao.Norms = deInterlace(vao.Coord)
 	fmt.Println("Pos/UV/Norms",len(*vao.Pos)/3, len(*vao.UVs)/2, len(*vao.Norms)/3)
 
-	vao.PosAndAngle = GetPositionAndAngle(world)
+	vao.PosAndAngle = GetPositionAndAngle(world, "box")
 	fmt.Println("Boxes: ", len(*vao.PosAndAngle), " floats")
 
 	// This function must be called before vao.AttrLocs is used anywhere
