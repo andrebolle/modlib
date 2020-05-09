@@ -12,18 +12,15 @@ import (
 
 // Vao Vao
 type Vao struct {
-	Vao, Vbo, Ebo                      uint32
-	Pos					*[]float32	
-	UVs					*[]float32	
+	Vao, Vbo, Ebo           uint32
+	Pos						*[]float32	
+	UVs						*[]float32	
 	Norms					*[]float32	
-	PosAndAngle	*[]float32
-	PosAndAngleOffset int
-	Coord   *[]float32
-	Indices                            *[]uint32
-	AttrLocs                           map[string]uint32
-	UniLocs                            map[string]int32
-	Stride                             int32
-	PosOffset, TexOffset, NormalOffset unsafe.Pointer
+	PosAndAngle				*[]float32
+	PosAndAngleOffset		int
+	Indices                 *[]uint32
+	AttrLocs                map[string]uint32
+	UniLocs                 map[string]int32
 }
 
 // GetVAOData GetVAOData
@@ -33,7 +30,6 @@ func GetVAOData(filename string) *Vao {
 
 	obj, errObj := gwob.NewObjFromFile(filename, options) // parse/load OBJ
 
-	//fmt.Println(o, errObj)
 	if errObj != nil {
 		panic(errObj)
 	}
@@ -44,17 +40,10 @@ func GetVAOData(filename string) *Vao {
 		uIntIndices = append(uIntIndices, uint32(obj.Indices[i]))
 	}
 	
+	// Get Pos, UVs, Norms and Indices into their own slices
 	vao := Vao{}
-
-	vao.Coord = &obj.Coord // vertex data pos=(x,y,z) tex=(tx,ty) norm=(nx,ny,nz)
 	vao.Indices = &uIntIndices
-	vao.Stride = int32(obj.StrideSize)
-	vao.PosOffset = gl.PtrOffset(obj.StrideOffsetPosition)
-	vao.TexOffset = gl.PtrOffset(obj.StrideOffsetTexture)
-	vao.NormalOffset = gl.PtrOffset(obj.StrideOffsetNormal)
-
-	// Get Pos, UVs and Norms into their own slices
-	vao.Pos, vao.UVs, vao.Norms = deInterlace(vao.Coord)
+	vao.Pos, vao.UVs, vao.Norms = deInterlace(&obj.Coord)
 
 	return &vao
 }
