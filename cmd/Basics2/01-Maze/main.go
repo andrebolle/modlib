@@ -24,24 +24,26 @@ type App struct {
 	cam                   *utils.Camera
 	projection            mgl32.Mat4
 	mazeWidth, mazeHeight int
+	wallCount             int
 	world                 *box2d.B2World
 	nutVAO                *utils.Vao
 }
 
 func main() {
 
-	app := App{mazeWidth: 25, mazeHeight: 25}
+	// w The width (must be odd).
+	// h The height (must be odd).
+	app := App{mazeWidth: 7, mazeHeight: 7}
 
+	// Set up Maze world
 	m := mainMaze(app.mazeWidth, app.mazeHeight)
+	app.world, app.wallCount = setupMaze(m)
 
 	// Create the OpenGL context, window and camera
 	app.window, app.cam = utils.GetWindowAndCamera(800, 600)
 	defer app.window.Destroy()
 
 	app.cam.Position = app.cam.StartPosition
-
-	// Set up Box2D world
-	app.world = setupMaze(m)
 
 	// Load Textures and Cubemap (aka Skybox)
 	modelTexture := utils.NewTexture("square.png")
@@ -88,7 +90,7 @@ func main() {
 		// ----------------Draw the Box2D objects
 		// Step through time
 
-		app.world.Step(1.0/60.0, 8, 3)
+		//app.world.Step(1.0/60.0, 8, 3)
 
 		gl.Enable(gl.DEPTH_TEST)
 		gl.Clear(gl.DEPTH_BUFFER_BIT)
@@ -103,15 +105,15 @@ func main() {
 		gl.BindVertexArray(app.nutVAO.Vao)
 		gl.BindBuffer(gl.ARRAY_BUFFER, app.nutVAO.Vbo)
 
-		// Extract position and angle from Box2D world
-		posAndAngle := utils.GetPositionAndAngle(app.world, "box")
+		// // Extract position and angle from Box2D world
+		// posAndAngle := utils.GetPositionAndAngle(app.world, "box")
 
-		// Load posAndAngle into GPU
-		gl.BufferSubData(gl.ARRAY_BUFFER, app.nutVAO.PosAndAngleOffset, len(*posAndAngle)*4, gl.Ptr(*posAndAngle))
+		// // Load posAndAngle into GPU
+		// gl.BufferSubData(gl.ARRAY_BUFFER, app.nutVAO.PosAndAngleOffset, len(*posAndAngle)*4, gl.Ptr(*posAndAngle))
 
 		// Draw boxCount instances
 		drawAllIndices := int32(len(*app.nutVAO.Indices))
-		gl.DrawElementsInstanced(gl.TRIANGLES, drawAllIndices, gl.UNSIGNED_INT, gl.PtrOffset(0), int32(app.mazeWidth*app.mazeHeight))
+		gl.DrawElementsInstanced(gl.TRIANGLES, drawAllIndices, gl.UNSIGNED_INT, gl.PtrOffset(0), int32(app.wallCount))
 
 		// Swap and Poll
 		app.window.SwapBuffers()

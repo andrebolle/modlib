@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 
@@ -133,20 +134,23 @@ func addDynamicBox(world *box2d.B2World, pos, vel, size box2d.B2Vec2) *box2d.B2B
 	return boxBody
 }
 
-func setupMaze(m *Maze) *box2d.B2World {
+func setupMaze(m *Maze) (*box2d.B2World, int) {
 
 	world := initBox2D()
 	// frameSize := float64(48)
 	// addFrame(&world, frameSize)
-
-	for i := 0; i < m.width; i++ {
-		for j := 0; j < m.height; j++ {
-			if m.data[i][j] != space {
+	wallCount := 0
+	for i := 0; i < m.height; i++ {
+		for j := 0; j < m.width; j++ {
+			if m.data[i][j] == wall {
 				addStaticBox(&world, box2d.B2Vec2{X: float64(i) * 2.1, Y: float64(j) * 2.1}, box2d.B2Vec2{X: 1, Y: 1})
+				wallCount++
 			}
 		}
 	}
 
-	return &world
+	fmt.Println("wallCount Box2D", wallCount)
+
+	return &world, wallCount
 
 }

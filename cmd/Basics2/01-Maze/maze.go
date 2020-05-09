@@ -69,16 +69,19 @@ func generateMaze(m *Maze) {
 
 /** Show a generated maze. */
 func showMaze(m *Maze) {
+	wallCount := 0
 	for y := 0; y < m.height; y++ {
 		for x := 0; x < m.width; x++ {
 			if m.data[y][x] == wall {
 				fmt.Printf("[]")
+				wallCount++
 			} else {
 				fmt.Printf("  ")
 			}
 		}
 		fmt.Printf("\n")
 	}
+	fmt.Println("wallCount", wallCount)
 }
 
 // Maze start
