@@ -134,7 +134,7 @@ func addDynamicBox(world *box2d.B2World, pos, vel, size box2d.B2Vec2) *box2d.B2B
 	return boxBody
 }
 
-func setupMaze(m *Maze) (*box2d.B2World, int) {
+func buildMaze(m *Maze) (*box2d.B2World, int) {
 
 	world := initBox2D()
 	// frameSize := float64(48)

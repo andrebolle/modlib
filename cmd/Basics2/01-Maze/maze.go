@@ -85,7 +85,7 @@ func showMaze(m *Maze) {
 }
 
 // Maze start
-func mainMaze(w, h int) *Maze {
+func designMaze(w, h int) *Maze {
 	m := newMaze(w, h)
 	// for i := 0; i < 23; i++ {
 	// 	fmt.Println(m.data[i])

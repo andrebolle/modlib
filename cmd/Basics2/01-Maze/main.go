@@ -33,14 +33,14 @@ func main() {
 
 	// w The width (must be odd).
 	// h The height (must be odd).
-	app := App{mazeWidth: 7, mazeHeight: 7}
+	app := App{mazeWidth: 31, mazeHeight: 31}
 
 	// Set up Maze world
-	m := mainMaze(app.mazeWidth, app.mazeHeight)
-	app.world, app.wallCount = setupMaze(m)
+	m := designMaze(app.mazeWidth, app.mazeHeight)
+	app.world, app.wallCount = buildMaze(m)
 
 	// Create the OpenGL context, window and camera
-	app.window, app.cam = utils.GetWindowAndCamera(800, 600)
+	app.window, app.cam = utils.GetWindowAndCamera(0, 600)
 	defer app.window.Destroy()
 
 	app.cam.Position = app.cam.StartPosition
@@ -112,8 +112,8 @@ func main() {
 		// gl.BufferSubData(gl.ARRAY_BUFFER, app.nutVAO.PosAndAngleOffset, len(*posAndAngle)*4, gl.Ptr(*posAndAngle))
 
 		// Draw boxCount instances
-		drawAllIndices := int32(len(*app.nutVAO.Indices))
-		gl.DrawElementsInstanced(gl.TRIANGLES, drawAllIndices, gl.UNSIGNED_INT, gl.PtrOffset(0), int32(app.wallCount))
+		indicesCount := int32(len(*app.nutVAO.Indices))
+		gl.DrawElementsInstanced(gl.TRIANGLES, indicesCount, gl.UNSIGNED_INT, gl.PtrOffset(0), int32(app.wallCount))
 
 		// Swap and Poll
 		app.window.SwapBuffers()
