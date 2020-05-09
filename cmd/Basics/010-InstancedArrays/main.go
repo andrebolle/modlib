@@ -19,12 +19,14 @@ import (
 	"github.com/purelazy/modlib/internal/utils"
 )
 
-// App App
+// App contains app stuff
 type App struct {
 	window *glfw.Window
 	cam *utils.Camera
+	projection mgl32.Mat4
 	boxCount int
 	world *box2d.B2World
+	nutVAO *utils.Vao
 }
 
 func main() {
@@ -32,16 +34,14 @@ func main() {
 	app := App{boxCount: 100}
 
 	// Create the OpenGL context, window and camera
-	app.window, app.cam = utils.GetWindowAndCamera(0, 525)
+	app.window, app.cam = utils.GetWindowAndCamera(800, 600)
+	defer app.window.Destroy()
 
 	var uniformBlockSize int32
 	gl.GetIntegerv(gl.MAX_UNIFORM_BLOCK_SIZE, &uniformBlockSize)
 	fmt.Println("uniformBlockSize", uniformBlockSize)
 
-	defer app.window.Destroy()
-
 	// Set up Box2D world
-	//app.boxCount = 100
 	app.world = setupPhysics(app.boxCount)
 
 	// Load Textures and Cubemap (aka Skybox)
@@ -57,12 +57,13 @@ func main() {
 	defer gl.DeleteProgram(cubemapShader)
 
 	// ------------------------- Compute and set static uniforms
-	projection := mgl32.Perspective(app.cam.Fovy, app.cam.Aspect, app.cam.Near, app.cam.Far)
+	app.projection = mgl32.Perspective(app.cam.Fovy, app.cam.Aspect, app.cam.Near, app.cam.Far)
 
-	nutVAO := utils.SetupModel("cube.obj", lighting, &projection[0], app.world)
+	// Load Obj file
+	app.nutVAO = utils.SetupModel("cubewithhole.obj", lighting, &app.projection[0], app.world)
 	//sphereVAO := utils.SetupModel("sphere.obj", lighting, &projection[0], world)
 
-	skyboxVAO, uViewCubemapLocation := setupSkybox(cubemapShader, &projection[0])
+	skyboxVAO, uViewCubemapLocation := setupSkybox(cubemapShader, &app.projection[0])
 
 	// --------------------- Main Loop
 	for !app.window.ShouldClose() {
@@ -82,6 +83,7 @@ func main() {
 
 		// Arm GPU with VAO and Render
 		gl.BindVertexArray(skyboxVAO)
+		// gl.DrawArrays(mode uint32, first int32, count int32)
 		gl.DrawArrays(gl.TRIANGLES, 0, 36)
 	
 		// ----------------Draw the Box2D objects
@@ -95,21 +97,21 @@ func main() {
 
 		// Load program and set uniforms
 		gl.UseProgram(lighting)
-		gl.UniformMatrix4fv(nutVAO.UniLocs["uView"], 1, false, &view[0])
-		gl.Uniform3fv(nutVAO.UniLocs["uViewPos"], 1, &app.cam.Position[0])
+		gl.UniformMatrix4fv(app.nutVAO.UniLocs["uView"], 1, false, &view[0])
+		gl.Uniform3fv(app.nutVAO.UniLocs["uViewPos"], 1, &app.cam.Position[0])
 
 		// Bind VAO and VBO
-		gl.BindVertexArray(nutVAO.Vao)
-		gl.BindBuffer(gl.ARRAY_BUFFER, nutVAO.Vbo)
+		gl.BindVertexArray(app.nutVAO.Vao)
+		gl.BindBuffer(gl.ARRAY_BUFFER, app.nutVAO.Vbo)
 
 		// Extract position and angle from Box2D world
 		posAndAngle := utils.GetPositionAndAngle(app.world, "box")
 
 		// Load posAndAngle into GPU
-		gl.BufferSubData(gl.ARRAY_BUFFER, nutVAO.PosAndAngleOffset, len(*posAndAngle)*4, gl.Ptr(*posAndAngle))
+		gl.BufferSubData(gl.ARRAY_BUFFER, app.nutVAO.PosAndAngleOffset, len(*posAndAngle)*4, gl.Ptr(*posAndAngle))
 
 		// Draw boxCount instances
-		gl.DrawElementsInstanced(gl.TRIANGLES, int32(len(*nutVAO.Indices)), gl.UNSIGNED_INT, gl.PtrOffset(0), int32(app.boxCount))
+		gl.DrawElementsInstanced(gl.TRIANGLES, int32(len(*app.nutVAO.Indices)), gl.UNSIGNED_INT, gl.PtrOffset(0), int32(app.boxCount))
 
 		// Frames Per Second Calculation
 		// start := time.Now()

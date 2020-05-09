@@ -7,7 +7,58 @@ import (
 	"github.com/ByteArena/box2d"
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/udhos/gwob"
 )
+
+// Vao Vao
+type Vao struct {
+	Vao, Vbo, Ebo                      uint32
+	Pos					*[]float32	
+	UVs					*[]float32	
+	Norms					*[]float32	
+	PosAndAngle	*[]float32
+	PosAndAngleOffset int
+	Coord   *[]float32
+	Indices                            *[]uint32
+	AttrLocs                           map[string]uint32
+	UniLocs                            map[string]int32
+	Stride                             int32
+	PosOffset, TexOffset, NormalOffset unsafe.Pointer
+}
+
+// GetVAOData GetVAOData
+func GetVAOData(filename string) *Vao {
+
+	options := &gwob.ObjParserOptions{} // parser options
+
+	obj, errObj := gwob.NewObjFromFile(filename, options) // parse/load OBJ
+
+	//fmt.Println(o, errObj)
+	if errObj != nil {
+		panic(errObj)
+	}
+
+	uIntIndices := make([]uint32, 0)
+	// Convert index "ints" to "uints"
+	for i := range obj.Indices {
+		uIntIndices = append(uIntIndices, uint32(obj.Indices[i]))
+	}
+	
+	vao := Vao{}
+
+	vao.Coord = &obj.Coord // vertex data pos=(x,y,z) tex=(tx,ty) norm=(nx,ny,nz)
+	vao.Indices = &uIntIndices
+	vao.Stride = int32(obj.StrideSize)
+	vao.PosOffset = gl.PtrOffset(obj.StrideOffsetPosition)
+	vao.TexOffset = gl.PtrOffset(obj.StrideOffsetTexture)
+	vao.NormalOffset = gl.PtrOffset(obj.StrideOffsetNormal)
+
+	// Get Pos, UVs and Norms into their own slices
+	vao.Pos, vao.UVs, vao.Norms = deInterlace(vao.Coord)
+
+	return &vao
+}
+
 
 func uniLocs(program uint32, names []string) map[string]int32 {
 	uniLocs := map[string]int32{}
@@ -75,16 +126,14 @@ func deInterlace(posUVsNorms *[]float32) (*[]float32, *[]float32, *[]float32) {
 // SetupModel SetupModel
 func SetupModel(file string, program uint32, projection *float32, world *box2d.B2World) *Vao {
 
+	// Short name
 	null := unsafe.Pointer(nil)
 
 	// Load the model geometry and return a VAO
-	vao := OJBLoader(file)
+	vao := GetVAOData(file)
 
-	vao.Pos, vao.UVs, vao.Norms = deInterlace(vao.Coord)
-	fmt.Println("Pos/UV/Norms",len(*vao.Pos)/3, len(*vao.UVs)/2, len(*vao.Norms)/3)
-
+	// Put all Box2D position and angle values in their own slice
 	vao.PosAndAngle = GetPositionAndAngle(world, "box")
-	fmt.Println("Boxes: ", len(*vao.PosAndAngle), " floats")
 
 	// This function must be called before vao.AttrLocs is used anywhere
 	findAttrAndUniLocs(vao, program, projection) 
@@ -94,13 +143,13 @@ func SetupModel(file string, program uint32, projection *float32, world *box2d.B
 	gl.BindVertexArray(vao.Vao)
 	gl.GenBuffers(1, &vao.Vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vao.Vbo)
-	// gl.BufferData(gl.ARRAY_BUFFER, len(*vao.Coord)*4, gl.Ptr(*vao.Coord), gl.STATIC_DRAW)
 
 	fmt.Println("Array Buffer Size", (len(*vao.Pos) + len(*vao.UVs) + len(*vao.Norms) + len(*vao.PosAndAngle))*4, "bytes" )
-	fmt.Println(vao)
+
+	// Allocate memory for array buffer
 	gl.BufferData(gl.ARRAY_BUFFER, (len(*vao.Pos) + len(*vao.UVs) + len(*vao.Norms) + len(*vao.PosAndAngle))*4, null, gl.DYNAMIC_DRAW)
 
-	// func gl.BufferSubData(target uint32, offset int, size int, data unsafe.Pointer)
+	// Copy Pos, UVs, Norms, Position and Angle data to ARRAY_BUFFER
 	offset := 0
 	gl.BufferSubData(gl.ARRAY_BUFFER, offset, len(*vao.Pos)*4, gl.Ptr(*vao.Pos))
 	offset += len(*vao.Pos)*4
@@ -108,18 +157,13 @@ func SetupModel(file string, program uint32, projection *float32, world *box2d.B
 	offset += len(*vao.UVs)*4
 	gl.BufferSubData(gl.ARRAY_BUFFER, offset, len(*vao.Norms)*4, gl.Ptr(*vao.Norms))
 	offset += len(*vao.Norms)*4
-
-	fmt.Println("len(*vao.PosAndAngle) ", len(*vao.PosAndAngle), "floats")
-	fmt.Println("offset: ", offset)
-
 	gl.BufferSubData(gl.ARRAY_BUFFER, offset, len(*vao.PosAndAngle)*4, gl.Ptr(*vao.PosAndAngle))
 	vao.PosAndAngleOffset = offset
 
+	// Define Vertex Shader Attributes
 	gl.VertexAttribPointer(vao.AttrLocs["aPos"], 3, gl.FLOAT, false, 0, null)
-	gl.VertexAttribPointer(vao.AttrLocs["aUV"], 2, gl.FLOAT, false, 0, 
-		gl.PtrOffset(len(*vao.Pos)*4))
-	gl.VertexAttribPointer(vao.AttrLocs["aNormal"], 3, gl.FLOAT, false, 0, 
-		gl.PtrOffset((len(*vao.Pos) + len(*vao.UVs))*4))
+	gl.VertexAttribPointer(vao.AttrLocs["aUV"], 2, gl.FLOAT, false, 0, gl.PtrOffset(len(*vao.Pos)*4))
+	gl.VertexAttribPointer(vao.AttrLocs["aNormal"], 3, gl.FLOAT, false, 0, gl.PtrOffset((len(*vao.Pos) + len(*vao.UVs))*4))
 	gl.VertexAttribPointer(vao.AttrLocs["aInstancePosAngle"], 3, gl.FLOAT, false, 0, 
 		gl.PtrOffset((len(*vao.Pos) + len(*vao.UVs) + len(*vao.Norms))*4))
 
@@ -129,9 +173,9 @@ func SetupModel(file string, program uint32, projection *float32, world *box2d.B
 	gl.EnableVertexAttribArray(vao.AttrLocs["aNormal"])
 	gl.EnableVertexAttribArray(vao.AttrLocs["aInstancePosAngle"])
 
+	// Modify the rate at which generic vertex attributes advance during instanced rendering
+	// A "PosAngle" for every 1 instance
 	gl.VertexAttribDivisor(vao.AttrLocs["aInstancePosAngle"], 1)
-
-	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 
 	// Copy indices
 	gl.GenBuffers(1, &vao.Ebo)
