@@ -61,7 +61,7 @@ func main() {
 	app.projection = mgl32.Perspective(app.cam.Fovy, app.cam.Aspect, app.cam.Near, app.cam.Far)
 
 	// Load Obj file
-	app.nutVAO = utils.SetupModel("cubewithhole.obj", lighting, &app.projection[0], app.world)
+	app.nutVAO = utils.SetupModel("cube.obj", lighting, &app.projection[0], app.world)
 	//sphereVAO := utils.SetupModel("sphere.obj", lighting, &projection[0], world)
 
 	skyboxVAO, uViewCubemapLocation := setupSkybox(cubemapShader, &app.projection[0])

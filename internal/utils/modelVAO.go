@@ -12,15 +12,15 @@ import (
 
 // Vao Vao
 type Vao struct {
-	Vao, Vbo, Ebo           uint32
-	Pos						*[]float32	
-	UVs						*[]float32	
-	Norms					*[]float32	
-	PosAndAngle				*[]float32
-	PosAndAngleOffset		int
-	Indices                 *[]uint32
-	AttrLocs                map[string]uint32
-	UniLocs                 map[string]int32
+	Vao, Vbo, Ebo     uint32
+	Pos               *[]float32
+	UVs               *[]float32
+	Norms             *[]float32
+	PosAndAngle       *[]float32
+	PosAndAngleOffset int
+	Indices           *[]uint32
+	AttrLocs          map[string]uint32
+	UniLocs           map[string]int32
 }
 
 // GetVAOData GetVAOData
@@ -39,7 +39,7 @@ func GetVAOData(filename string) *Vao {
 	for i := range obj.Indices {
 		uIntIndices = append(uIntIndices, uint32(obj.Indices[i]))
 	}
-	
+
 	// Get Pos, UVs, Norms and Indices into their own slices
 	vao := Vao{}
 	vao.Indices = &uIntIndices
@@ -47,7 +47,6 @@ func GetVAOData(filename string) *Vao {
 
 	return &vao
 }
-
 
 func uniLocs(program uint32, names []string) map[string]int32 {
 	uniLocs := map[string]int32{}
@@ -66,31 +65,31 @@ func attrLocs(program uint32, names []string) map[string]uint32 {
 }
 
 func findAttrAndUniLocs(vao *Vao, program uint32, projection *float32) {
-		// Use program to get locations
-		gl.UseProgram(program)
+	// Use program to get locations
+	gl.UseProgram(program)
 
-		// Get vertex attribute and uniform locations
-		vertexAttributes := []string{"aPos", "aUV", "aNormal", "aInstancePosAngle"}
-		vao.AttrLocs = attrLocs(program, vertexAttributes)
-		uniforms := []string{"uModel", "uView", "uProjection",
-			"uTex", "uViewPos", "uLightColor", "uLightPos"}
-		vao.UniLocs = uniLocs(program, uniforms)
-	
-		// Compute and set static uniforms
-		lightColor := mgl32.Vec3{1, 1, 1}
-		lightPos := mgl32.Vec3{3, 3, -13}
-		gl.UniformMatrix4fv(vao.UniLocs["uProjection"], 1, false, projection)
-		gl.Uniform1i(vao.UniLocs["uTex"], 0)
-		gl.Uniform3fv(vao.UniLocs["uLightPos"], 1, &lightPos[0])
-		gl.Uniform3fv(vao.UniLocs["uLightColor"], 1, &lightColor[0])
+	// Get vertex attribute and uniform locations
+	vertexAttributes := []string{"aPos", "aUV", "aNormal", "aInstancePosAngle"}
+	vao.AttrLocs = attrLocs(program, vertexAttributes)
+	uniforms := []string{"uModel", "uView", "uProjection",
+		"uTex", "uViewPos", "uLightColor", "uLightPos"}
+	vao.UniLocs = uniLocs(program, uniforms)
+
+	// Compute and set static uniforms
+	lightColor := mgl32.Vec3{1, 1, 1}
+	lightPos := mgl32.Vec3{3, 3, -13}
+	gl.UniformMatrix4fv(vao.UniLocs["uProjection"], 1, false, projection)
+	gl.Uniform1i(vao.UniLocs["uTex"], 0)
+	gl.Uniform3fv(vao.UniLocs["uLightPos"], 1, &lightPos[0])
+	gl.Uniform3fv(vao.UniLocs["uLightColor"], 1, &lightColor[0])
 }
 
 // GetPositionAndAngle GetPositionAndAngle
 func GetPositionAndAngle(world *box2d.B2World, name string) *[]float32 {
-	posAndAngle := make([]float32,0)
+	posAndAngle := make([]float32, 0)
 	for b := world.GetBodyList(); b != nil; b = b.GetNext() {
 		if b.GetUserData() == name {
-			posAndAngle = append(posAndAngle, float32(b.GetPosition().X), float32(b.GetPosition().Y), float32(b.GetAngle()) )
+			posAndAngle = append(posAndAngle, float32(b.GetPosition().X), float32(b.GetPosition().Y), float32(b.GetAngle()))
 		}
 	}
 	return &posAndAngle
@@ -102,16 +101,17 @@ func deInterlace(posUVsNorms *[]float32) (*[]float32, *[]float32, *[]float32) {
 	fmt.Println("posUVsNorms", len(*posUVsNorms))
 
 	for i := 0; i < len(*posUVsNorms); {
-		positions = append(positions, (*posUVsNorms)[i], (*posUVsNorms)[i+1], (*posUVsNorms)[i+2] )
+		positions = append(positions, (*posUVsNorms)[i], (*posUVsNorms)[i+1], (*posUVsNorms)[i+2])
 		i += 3
-		uvs = append(uvs, (*posUVsNorms)[i], (*posUVsNorms)[i+1] )
+		uvs = append(uvs, (*posUVsNorms)[i], (*posUVsNorms)[i+1])
 		i += 2
-		norms = append(norms, (*posUVsNorms)[i], (*posUVsNorms)[i+1], (*posUVsNorms)[i+2] )
+		norms = append(norms, (*posUVsNorms)[i], (*posUVsNorms)[i+1], (*posUVsNorms)[i+2])
 		i += 3
 	}
 
 	return &positions, &uvs, &norms
 }
+
 // SetupModel SetupModel
 func SetupModel(file string, program uint32, projection *float32, world *box2d.B2World) *Vao {
 
@@ -125,7 +125,7 @@ func SetupModel(file string, program uint32, projection *float32, world *box2d.B
 	vao.PosAndAngle = GetPositionAndAngle(world, "box")
 
 	// This function must be called before vao.AttrLocs is used anywhere
-	findAttrAndUniLocs(vao, program, projection) 
+	findAttrAndUniLocs(vao, program, projection)
 
 	// Create & Bind VAO and its buffer
 	gl.GenVertexArrays(1, &vao.Vao)
@@ -133,28 +133,28 @@ func SetupModel(file string, program uint32, projection *float32, world *box2d.B
 	gl.GenBuffers(1, &vao.Vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vao.Vbo)
 
-	fmt.Println("Array Buffer Size", (len(*vao.Pos) + len(*vao.UVs) + len(*vao.Norms) + len(*vao.PosAndAngle))*4, "bytes" )
+	fmt.Println("Array Buffer Size", (len(*vao.Pos)+len(*vao.UVs)+len(*vao.Norms)+len(*vao.PosAndAngle))*4, "bytes")
 
 	// Allocate memory for array buffer
-	gl.BufferData(gl.ARRAY_BUFFER, (len(*vao.Pos) + len(*vao.UVs) + len(*vao.Norms) + len(*vao.PosAndAngle))*4, null, gl.DYNAMIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, (len(*vao.Pos)+len(*vao.UVs)+len(*vao.Norms)+len(*vao.PosAndAngle))*4, null, gl.DYNAMIC_DRAW)
 
 	// Copy Pos, UVs, Norms, Position and Angle data to ARRAY_BUFFER
 	offset := 0
 	gl.BufferSubData(gl.ARRAY_BUFFER, offset, len(*vao.Pos)*4, gl.Ptr(*vao.Pos))
-	offset += len(*vao.Pos)*4
+	offset += len(*vao.Pos) * 4
 	gl.BufferSubData(gl.ARRAY_BUFFER, offset, len(*vao.UVs)*4, gl.Ptr(*vao.UVs))
-	offset += len(*vao.UVs)*4
+	offset += len(*vao.UVs) * 4
 	gl.BufferSubData(gl.ARRAY_BUFFER, offset, len(*vao.Norms)*4, gl.Ptr(*vao.Norms))
-	offset += len(*vao.Norms)*4
+	offset += len(*vao.Norms) * 4
 	gl.BufferSubData(gl.ARRAY_BUFFER, offset, len(*vao.PosAndAngle)*4, gl.Ptr(*vao.PosAndAngle))
 	vao.PosAndAngleOffset = offset
 
 	// Define Vertex Shader Attributes
 	gl.VertexAttribPointer(vao.AttrLocs["aPos"], 3, gl.FLOAT, false, 0, null)
 	gl.VertexAttribPointer(vao.AttrLocs["aUV"], 2, gl.FLOAT, false, 0, gl.PtrOffset(len(*vao.Pos)*4))
-	gl.VertexAttribPointer(vao.AttrLocs["aNormal"], 3, gl.FLOAT, false, 0, gl.PtrOffset((len(*vao.Pos) + len(*vao.UVs))*4))
-	gl.VertexAttribPointer(vao.AttrLocs["aInstancePosAngle"], 3, gl.FLOAT, false, 0, 
-		gl.PtrOffset((len(*vao.Pos) + len(*vao.UVs) + len(*vao.Norms))*4))
+	gl.VertexAttribPointer(vao.AttrLocs["aNormal"], 3, gl.FLOAT, false, 0, gl.PtrOffset((len(*vao.Pos)+len(*vao.UVs))*4))
+	gl.VertexAttribPointer(vao.AttrLocs["aInstancePosAngle"], 3, gl.FLOAT, false, 0,
+		gl.PtrOffset((len(*vao.Pos)+len(*vao.UVs)+len(*vao.Norms))*4))
 
 	// Enable all vertex attributes
 	gl.EnableVertexAttribArray(vao.AttrLocs["aPos"])
