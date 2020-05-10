@@ -36,7 +36,7 @@ void main()
 
     mat4 translate3D = translate3D(aInstancePosAngle.x, aInstancePosAngle.y, 0);
     //mat4 homogRotate3D = homogRotate3D(aInstancePosAngle.z, vec3(0,0,1));
-    mat4 homogRotate3D = homogRotate3D(3.1415926/2, vec3(1,0,0));
+    mat4 homogRotate3D = homogRotate3D(0, vec3(1,0,0));
     mat4 model = translate3D * homogRotate3D;
 
 

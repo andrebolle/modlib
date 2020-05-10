@@ -85,10 +85,10 @@ func GetWindow(width int, height int) *glfw.Window {
 	}
 
 	// I decided that non-positive width or height meant Fullscreen. Cool eh?
-	if width <= 0 || height <= 0 {
+	if width == 0 || height == 0 {
 		width, height = FullScreen()
 	}
-
+	fmt.Println("w,h", width, height)
 	win := CreateWindow(os.Args[0], width, height)
 
 	return win
@@ -127,6 +127,6 @@ func Cam() *Camera {
 		Far:           1000,
 		Paused:        false,
 		StartLookAt:   mgl32.Vec3{0, 0, 0},
-		StartPosition: mgl32.Vec3{0, 10, 0},
+		StartPosition: mgl32.Vec3{15, 15, -60},
 	}
 }

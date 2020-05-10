@@ -123,7 +123,7 @@ func addBox(world *box2d.B2World, pos, vel, size box2d.B2Vec2, type2D uint8) {
 	boxBodyDef.LinearVelocity.Set(vel.X, vel.Y)
 	// Body instance
 	boxBody := world.CreateBody(&boxBodyDef)
-	boxBody.SetTransform(box2d.B2Vec2{X: pos.X, Y: pos.Y}, rand.Float64()*2*math.Pi)
+	boxBody.SetTransform(box2d.B2Vec2{X: pos.X, Y: pos.Y}, 0)
 	boxBody.SetUserData("box")
 
 	// Create a box/circle shape
@@ -176,8 +176,8 @@ func buildMaze(world *box2d.B2World, m *Maze) int {
 	// frameSize := float64(48)
 	// addFrame(&world, frameSize)
 	wallCount := 0
-	for i := 0; i < m.height; i++ {
-		for j := 0; j < m.width; j++ {
+	for i := uint8(0); i < m.width; i++ {
+		for j := uint8(0); j < m.height; j++ {
 			if m.data[i][j] == wall {
 				addBox(world, box2d.B2Vec2{X: float64(i) * 2.1, Y: float64(j) * 2.1}, box2d.B2Vec2{X: 0, Y: 0}, box2d.B2Vec2{X: 1, Y: 1}, static)
 				wallCount++

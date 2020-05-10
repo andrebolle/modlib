@@ -16,7 +16,7 @@ type App struct {
 	width, height         int
 	cam                   *utils.Camera
 	projection            mgl32.Mat4
-	mazeWidth, mazeHeight int
+	mazeWidth, mazeHeight uint8
 	wallCount             int
 	world                 box2d.B2World
 	nutVAO                *utils.Vao
@@ -28,21 +28,21 @@ func theBall(world *box2d.B2World) {
 
 func main() {
 	// Define the maze. Dimensions must be odd
-	app := App{width: 800, height: 600, mazeWidth: 11, mazeHeight: 11}
+	//app := App{width: 1680, height: 1050, mazeWidth: 31, mazeHeight: 31}
+	app := App{width: 1680, height: 1050, mazeWidth: 31, mazeHeight: 31}
 
-	// Set the camera aspect to the screen aspect
+	// Camera
 	app.cam = utils.Cam()
 	app.cam.Aspect = float32(app.width) / float32(app.height)
+	app.cam.Position = app.cam.StartPosition
 
-	// Create the OpenGL context, window and camera
+	// Window and OpenGL
 	app.window = utils.GetWindow(app.width, app.height)
 	defer app.window.Destroy()
 
-	// Set callbacks for user input
+	// Callbacks
 	utils.SetWASDCallback(app.window, app.cam)
 	utils.SetPitchYawCallback(app.window, app.cam)
-
-	app.cam.Position = app.cam.StartPosition
 
 	// Create a Box2D world
 	app.world = box2d.MakeB2World(box2d.MakeB2Vec2(0.0, 0.0))
@@ -51,7 +51,10 @@ func main() {
 	app.wallCount = buildMaze(&app.world, designMaze(app.mazeWidth, app.mazeHeight))
 
 	// Add a ball
-	addBox(&app.world, box2d.B2Vec2{X: 40, Y: 40}, box2d.B2Vec2{X: -2.8, Y: -2.8}, box2d.B2Vec2{X: 1, Y: 1}, dynamic)
+	addBox(&app.world, box2d.B2Vec2{X: 40, Y: 40}, box2d.B2Vec2{X: -6.8, Y: -6.8}, box2d.B2Vec2{X: .1, Y: .1}, dynamic)
+	addBox(&app.world, box2d.B2Vec2{X: 30, Y: 24}, box2d.B2Vec2{X: -6.8, Y: -6.8}, box2d.B2Vec2{X: .1, Y: .1}, dynamic)
+	addBox(&app.world, box2d.B2Vec2{X: 20, Y: 20}, box2d.B2Vec2{X: -6.8, Y: -6.8}, box2d.B2Vec2{X: .1, Y: .1}, dynamic)
+	addBox(&app.world, box2d.B2Vec2{X: 24, Y: 10}, box2d.B2Vec2{X: -6.8, Y: -6.8}, box2d.B2Vec2{X: .1, Y: .1}, dynamic)
 	//addStaticBox(app.world, box2d.B2Vec2{X: float64(22) * 2.1, Y: float64(22) * 2.1}, box2d.B2Vec2{X: 1, Y: 1})
 	app.wallCount++
 
@@ -123,7 +126,7 @@ func main() {
 
 		// Draw boxCount instances
 		indicesCount := int32(len(*app.nutVAO.Indices))
-		gl.DrawElementsInstanced(gl.TRIANGLES, indicesCount, gl.UNSIGNED_INT, gl.PtrOffset(0), int32(app.wallCount))
+		gl.DrawElementsInstanced(gl.TRIANGLES, indicesCount, gl.UNSIGNED_INT, gl.PtrOffset(0), int32(app.wallCount+3))
 
 		// Swap and Poll
 		app.window.SwapBuffers()

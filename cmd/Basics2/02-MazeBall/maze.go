@@ -17,7 +17,7 @@ const (
 
 // Maze type
 type Maze struct {
-	width, height int
+	width, height uint8
 	data          [][]byte
 }
 
@@ -25,7 +25,7 @@ type Maze struct {
  * @param w The width (must be odd).
  * @param h The height (must be odd).
  */
-func newMaze(w int, h int) *Maze {
+func newMaze(w uint8, h uint8) *Maze {
 	m := Maze{w, h, make([][]byte, h)}
 	for y := range m.data {
 		m.data[y] = make([]byte, w)
@@ -33,10 +33,10 @@ func newMaze(w int, h int) *Maze {
 			m.data[y][x] = wall
 		}
 	}
-	for x := 0; x < w; x++ {
+	for x := uint8(0); x < w; x++ {
 		m.data[0][x], m.data[h-1][x] = space, space
 	}
-	for y := 0; y < h; y++ {
+	for y := uint8(0); y < h; y++ {
 		m.data[y][0], m.data[y][w-1] = space, space
 	}
 	return &m
@@ -70,9 +70,10 @@ func generateMaze(m *Maze) {
 /** Show a generated maze. */
 func showMaze(m *Maze) {
 	wallCount := 0
-	for y := 0; y < m.height; y++ {
-		for x := 0; x < m.width; x++ {
-			if m.data[y][x] == wall {
+	for w := m.width - 1; w > 0; w-- {
+		for h := uint8(0); h < m.height; h++ {
+			//fmt.Println("w,h", w, h)
+			if m.data[h][w] == wall {
 				fmt.Printf("[]")
 				wallCount++
 			} else {
@@ -85,17 +86,9 @@ func showMaze(m *Maze) {
 }
 
 // Maze start
-func designMaze(w, h int) *Maze {
+func designMaze(w, h uint8) *Maze {
 	m := newMaze(w, h)
-	// for i := 0; i < 23; i++ {
-	// 	fmt.Println(m.data[i])
-	// }
-	// fmt.Println()
 	generateMaze(m)
-	// for i := 0; i < 23; i++ {
-	// 	fmt.Println(m.data[i])
-	// }
-
 	showMaze(m)
 	return m
 }
