@@ -5,7 +5,10 @@ import (
 
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/purelazy/modlib/cmd/Rewrite/main/app"
+	"github.com/purelazy/modlib/cmd/Rewrite/main/geo"
 	"github.com/purelazy/modlib/cmd/Rewrite/main/input"
+	"github.com/purelazy/modlib/cmd/Rewrite/main/shader"
+	"github.com/purelazy/modlib/cmd/Rewrite/main/vao"
 	"github.com/purelazy/modlib/cmd/Rewrite/main/window"
 )
 
@@ -20,15 +23,22 @@ func init() {
 
 func main() {
 
-	app := new(app.App)
-	app.Win = window.NewWindow(windowWidth, windowHeight)
+	game := app.NewApp()
+	game.Win = window.NewWindow(windowWidth, windowHeight)
 	defer glfw.Terminate()
 
-	for !app.Win.ShouldClose() {
+	app.StartOpenGL()
 
-		input.PollKeyboard(app)
+	basicProgram := shader.NewProgram(shader.ReadShader("triangle.vert.glsl"), shader.ReadShader("triangle.frag.glsl"))
+	vao := vao.NewVAO(basicProgram, &geo.Triangle, 2)
 
-		// TODO
+	vao.Draw()
+
+	for !game.Win.ShouldClose() {
+
+		input.PollKeyboard(game)
+		game.Win.SwapBuffers()
 		glfw.PollEvents()
+
 	}
 }
