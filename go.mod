@@ -11,6 +11,9 @@ require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200222043503-6f7a984d4dc4
 	github.com/go-gl/mathgl v0.0.0-20190713194549-592312d8590a
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
+	github.com/mattn/go-colorable v0.1.6 // indirect
+	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
+	github.com/mgutz/logxi v0.0.0-20161027140823-aebf8a7d67ab
 	github.com/udhos/gwob v0.0.0-20190523181606-728b7edd132c
 	golang.org/x/tools v0.0.0-20200422205258-72e4a01eba43 // indirect
 	golang.org/x/tools/gopls v0.3.4 // indirect
