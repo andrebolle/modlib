@@ -9,7 +9,6 @@ import (
 	"github.com/purelazy/modlib/cmd/Rewrite/main/input"
 	"github.com/purelazy/modlib/cmd/Rewrite/main/shader"
 	"github.com/purelazy/modlib/cmd/Rewrite/main/vao"
-	"github.com/purelazy/modlib/cmd/Rewrite/main/window"
 )
 
 const (
@@ -23,11 +22,8 @@ func init() {
 
 func main() {
 
-	game := app.NewApp()
-	game.Win = window.NewWindow(windowWidth, windowHeight)
+	game := app.NewApp(windowWidth, windowHeight)
 	defer glfw.Terminate()
-
-	app.StartOpenGL()
 
 	vao := vao.NewVAO(shader.NewProgram("triangle"), &geo.Triangle, 2)
 

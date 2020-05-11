@@ -24,12 +24,6 @@ func NewVAO(program uint32, floats *[]float32, size int32) *VAO {
 	gl.GenBuffers(1, &vao.Buffer)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vao.Buffer)
 	gl.BufferData(gl.ARRAY_BUFFER, len(*floats)*4, unsafe.Pointer(&(*floats)[0]), gl.STATIC_DRAW)
-	// ShaderInfo shaders[] = {
-	// { GL_VERTEX_SHADER, "triangles.vert" },
-	// { GL_FRAGMENT_SHADER, "triangles.frag" },
-	// { GL_NONE, NULL }
-	// };
-	// GLuint program = LoadShaders(shaders);
 	gl.UseProgram(program)
 	gl.VertexAttribPointer(0, size, gl.FLOAT, false, 0, gl.PtrOffset(0))
 	gl.EnableVertexAttribArray(0)

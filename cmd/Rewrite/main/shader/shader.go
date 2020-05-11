@@ -11,8 +11,6 @@ import (
 
 //Compile Compile a shader
 func Compile(source string, shaderType uint32) (uint32, error) {
-	fmt.Println("shaderType", shaderType)
-	fmt.Println("source", source)
 	shader := gl.CreateShader(shaderType)
 
 	if shader == 0 {
