@@ -47,7 +47,9 @@ func Compile(source string, shaderType uint32) (uint32, error) {
 }
 
 // NewProgram Create a Vertex --> Fragment shader
-func NewProgram(vertexShaderSource, fragmentShaderSource string) uint32 {
+func NewProgram(name string) uint32 {
+	vertexShaderSource := ReadShader(name + ".vert.glsl")
+	fragmentShaderSource := ReadShader(name + ".frag.glsl")
 	vertexShader, err := Compile(vertexShaderSource, gl.VERTEX_SHADER)
 	if err != nil {
 		fmt.Println("Vertex shader did not compile")

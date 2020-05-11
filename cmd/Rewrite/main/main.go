@@ -29,10 +29,10 @@ func main() {
 
 	app.StartOpenGL()
 
-	basicProgram := shader.NewProgram(shader.ReadShader("triangle.vert.glsl"), shader.ReadShader("triangle.frag.glsl"))
-	vao := vao.NewVAO(basicProgram, &geo.Triangle, 2)
+	vao := vao.NewVAO(shader.NewProgram("triangle"), &geo.Triangle, 2)
 
 	vao.Draw()
+	game.Win.SwapBuffers()
 
 	for !game.Win.ShouldClose() {
 
