@@ -4,11 +4,12 @@ import (
 	"runtime"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/purelazy/modlib/cmd/Rewrite/main/app"
-	"github.com/purelazy/modlib/cmd/Rewrite/main/geo"
-	"github.com/purelazy/modlib/cmd/Rewrite/main/input"
-	"github.com/purelazy/modlib/cmd/Rewrite/main/shader"
-	"github.com/purelazy/modlib/cmd/Rewrite/main/vao"
+	"github.com/purelazy/modlib/internal/app"
+	"github.com/purelazy/modlib/internal/vao"
+
+	"github.com/purelazy/modlib/internal/geo"
+	"github.com/purelazy/modlib/internal/input"
+	"github.com/purelazy/modlib/internal/shader"
 )
 
 const (

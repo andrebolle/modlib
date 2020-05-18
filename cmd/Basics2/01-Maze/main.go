@@ -29,6 +29,11 @@ type App struct {
 	nutVAO                *utils.Vao
 }
 
+const (
+	windowWidth  = 500
+	windowHeight = 500
+)
+
 func main() {
 
 	// w The width (must be odd).
@@ -40,6 +45,7 @@ func main() {
 	app.world, app.wallCount = buildMaze(m)
 
 	// Create the OpenGL context, window and camera
+	game := app.NewApp(windowWidth, windowHeight)
 	app.window, app.cam = utils.GetWindowAndCamera(0, 600)
 	defer app.window.Destroy()
 

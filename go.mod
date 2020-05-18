@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/ByteArena/box2d v1.0.2
+	github.com/EngoEngine/TrafficManager v0.0.0-20190406034806-0cc712f2c78a
 	github.com/EngoEngine/ecs v1.0.4
 	github.com/EngoEngine/engo v1.0.4
 	github.com/EngoEngine/gl v1.0.10 // indirect
@@ -26,7 +27,6 @@ require (
 	golang.org/x/image v0.0.0-20200430140353-33d19683fad8 // indirect
 	golang.org/x/mobile v0.0.0-20200329125638-4c31acba0007 // indirect
 	golang.org/x/sys v0.0.0-20200509044756-6aff5f38e54f // indirect
-	golang.org/x/tools v0.0.0-20200422205258-72e4a01eba43 // indirect
-	golang.org/x/tools/gopls v0.3.4 // indirect
+	golang.org/x/tools/gopls v0.4.1 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
