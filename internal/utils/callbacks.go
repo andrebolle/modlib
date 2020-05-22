@@ -5,13 +5,14 @@ import (
 
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/go-gl/mathgl/mgl32"
+	cam "github.com/purelazy/modlib/internal/camera"
 )
 
 //var mouseDx, mouseDy float64
 var xOld, yOld float64
 
 // YawPitchCamera YawPitchCamera
-func YawPitchCamera(t *Camera, yaw, pitch float64) {
+func YawPitchCamera(t *cam.Camera, yaw, pitch float64) {
 
 	// Yaw/Turn
 	up := t.Forward.Cross(t.Right)
@@ -29,7 +30,7 @@ func YawPitchCamera(t *Camera, yaw, pitch float64) {
 }
 
 //MoveCamera - Basic WASD with EC (Up/Down) and Space to Pause
-func MoveCamera(win *glfw.Window, cam *Camera, action glfw.Action, key glfw.Key, scancode int) {
+func MoveCamera(win *glfw.Window, cam *cam.Camera, action glfw.Action, key glfw.Key, scancode int) {
 	dt := float32(0.1)
 
 	if key == glfw.KeyEscape && action == glfw.Press {
@@ -79,7 +80,7 @@ func MoveCamera(win *glfw.Window, cam *Camera, action glfw.Action, key glfw.Key,
 }
 
 // SetPitchYawCallback SetPitchYawCallback
-func SetPitchYawCallback(win *glfw.Window, cam *Camera) {
+func SetPitchYawCallback(win *glfw.Window, cam *cam.Camera) {
 
 	// If you wish to implement mouse motion based camera controls or
 	// other input schemes that require unlimited mouse movement, set
@@ -113,7 +114,7 @@ func SetPitchYawCallback(win *glfw.Window, cam *Camera) {
 }
 
 // SetWASDCallback SetWASDCallback
-func SetWASDCallback(win *glfw.Window, cam *Camera) {
+func SetWASDCallback(win *glfw.Window, cam *cam.Camera) {
 	// Keyboard Setup
 	keyCallback := func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
 		MoveCamera(win, cam, action, key, scancode)

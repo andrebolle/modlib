@@ -7,6 +7,7 @@ import (
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/go-gl/mathgl/mgl32"
+	cam "github.com/purelazy/modlib/internal/camera"
 	"github.com/purelazy/modlib/internal/utils"
 )
 
@@ -14,7 +15,7 @@ import (
 type App struct {
 	window                *glfw.Window
 	width, height         int
-	cam                   *utils.Camera
+	cam                   *cam.Camera
 	projection            mgl32.Mat4
 	mazeWidth, mazeHeight uint8
 	wallCount             int
@@ -22,17 +23,12 @@ type App struct {
 	nutVAO                *utils.Vao
 }
 
-func theBall(world *box2d.B2World) {
-
-}
-
 func main() {
 	// Define the maze. Dimensions must be odd
-	//app := App{width: 1680, height: 1050, mazeWidth: 31, mazeHeight: 31}
 	app := App{width: 1680, height: 1050, mazeWidth: 31, mazeHeight: 31}
 
 	// Camera
-	app.cam = utils.Cam()
+	app.cam = cam.Cam()
 	app.cam.Aspect = float32(app.width) / float32(app.height)
 	app.cam.Position = app.cam.StartPosition
 
@@ -56,8 +52,7 @@ func main() {
 	addBox(&app.world, box2d.B2Vec2{X: 20, Y: 20}, box2d.B2Vec2{X: -6.8, Y: -6.8}, box2d.B2Vec2{X: .1, Y: .1}, dynamic)
 	addBox(&app.world, box2d.B2Vec2{X: 24, Y: 10}, box2d.B2Vec2{X: -6.8, Y: -6.8}, box2d.B2Vec2{X: .1, Y: .1}, dynamic)
 	//addStaticBox(app.world, box2d.B2Vec2{X: float64(22) * 2.1, Y: float64(22) * 2.1}, box2d.B2Vec2{X: 1, Y: 1})
-	app.wallCount++
-
+	app.wallCount += 4
 	// Load Textures and Cubemap (aka Skybox)
 	modelTexture := utils.NewTexture("square.png")
 	gl.BindTexture(gl.TEXTURE_2D, modelTexture)
@@ -75,6 +70,14 @@ func main() {
 
 	// Load Obj file
 	app.nutVAO = utils.SetupModel("cube.obj", lighting, &app.projection[0], &app.world)
+
+	// Compute and set static uniforms
+	lightColor := mgl32.Vec3{1, 1, 1}
+	lightPos := mgl32.Vec3{15, 15, 15}
+	gl.UniformMatrix4fv(app.nutVAO.UniLocs["uProjection"], 1, false, &app.projection[0])
+	gl.Uniform1i(app.nutVAO.UniLocs["uTex"], 0)
+	gl.Uniform3fv(app.nutVAO.UniLocs["uLightPos"], 1, &lightPos[0])
+	gl.Uniform3fv(app.nutVAO.UniLocs["uLightColor"], 1, &lightColor[0])
 	//sphereVAO := utils.SetupModel("sphere.obj", lighting, &projection[0], world)
 
 	skyboxVAO, uViewCubemapLocation := setupSkybox(cubemapShader, &app.projection[0])
@@ -126,7 +129,7 @@ func main() {
 
 		// Draw boxCount instances
 		indicesCount := int32(len(*app.nutVAO.Indices))
-		gl.DrawElementsInstanced(gl.TRIANGLES, indicesCount, gl.UNSIGNED_INT, gl.PtrOffset(0), int32(app.wallCount+3))
+		gl.DrawElementsInstanced(gl.TRIANGLES, indicesCount, gl.UNSIGNED_INT, gl.PtrOffset(0), int32(app.wallCount))
 
 		// Swap and Poll
 		app.window.SwapBuffers()
