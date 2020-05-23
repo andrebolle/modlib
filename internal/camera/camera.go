@@ -42,3 +42,8 @@ func Cam() *Camera {
 		StartPosition: mgl32.Vec3{0, 0, 5},
 	}
 }
+
+// LookAt Return LookAt Matrix
+func (c *Camera) LookAt() mgl32.Mat4 {
+	return mgl32.LookAtV(c.Position, c.Position.Add(c.Forward), c.Up)
+}

@@ -92,13 +92,13 @@ func deInterlace(posUVsNorms *[]float32) (*[]float32, *[]float32, *[]float32) {
 }
 
 // SetupModel SetupModel
-func SetupModel(file string, program uint32, projection *float32, world *box2d.B2World) *Vao {
+func SetupModel(modelFileName string, program uint32, projection *float32, world *box2d.B2World) *Vao {
 
 	// Short name
 	null := unsafe.Pointer(nil)
 
 	// Load the model geometry and return a VAO
-	vao := GetVAOData(file)
+	vao := GetVAOData(modelFileName)
 
 	// Put all Box2D position and angle values in their own slice
 	vao.PosAndAngle = GetPositionAndAngle(world, "box")

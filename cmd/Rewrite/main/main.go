@@ -8,7 +8,6 @@ import (
 	"github.com/purelazy/modlib/internal/vao"
 
 	"github.com/purelazy/modlib/internal/geo"
-	"github.com/purelazy/modlib/internal/input"
 	"github.com/purelazy/modlib/internal/shader"
 )
 
@@ -33,8 +32,8 @@ func main() {
 
 	for !game.Win.ShouldClose() {
 
-		input.PollKeyboard(game)
-		game.Win.SwapBuffers()
+		// input.PollKeyboard(game)
+		// game.Win.SwapBuffers()
 		glfw.PollEvents()
 
 	}

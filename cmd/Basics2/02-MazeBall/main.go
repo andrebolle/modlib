@@ -15,7 +15,7 @@ import (
 type App struct {
 	window                *glfw.Window
 	width, height         int
-	cam                   *cam.Camera
+	camera                *cam.Camera
 	projection            mgl32.Mat4
 	mazeWidth, mazeHeight uint8
 	wallCount             int
@@ -28,17 +28,17 @@ func main() {
 	app := App{width: 1680, height: 1050, mazeWidth: 31, mazeHeight: 31}
 
 	// Camera
-	app.cam = cam.Cam()
-	app.cam.Aspect = float32(app.width) / float32(app.height)
-	app.cam.Position = app.cam.StartPosition
+	app.camera = cam.Cam()
+	app.camera.Aspect = float32(app.width) / float32(app.height)
+	app.camera.Position = app.camera.StartPosition
 
 	// Window and OpenGL
 	app.window = utils.GetWindow(app.width, app.height)
 	defer app.window.Destroy()
 
 	// Callbacks
-	utils.SetWASDCallback(app.window, app.cam)
-	utils.SetPitchYawCallback(app.window, app.cam)
+	utils.SetWASDCallback(app.window, app.camera)
+	utils.SetPitchYawCallback(app.window, app.camera)
 
 	// Create a Box2D world
 	app.world = box2d.MakeB2World(box2d.MakeB2Vec2(0.0, 0.0))
@@ -54,7 +54,7 @@ func main() {
 	//addStaticBox(app.world, box2d.B2Vec2{X: float64(22) * 2.1, Y: float64(22) * 2.1}, box2d.B2Vec2{X: 1, Y: 1})
 	app.wallCount += 4
 	// Load Textures and Cubemap (aka Skybox)
-	modelTexture := utils.NewTexture("square.png")
+	modelTexture := utils.NewTexture("black.png")
 	gl.BindTexture(gl.TEXTURE_2D, modelTexture)
 	cubemapTexture := utils.Cubemap(utils.Faces)
 	gl.BindTexture(gl.TEXTURE_CUBE_MAP, cubemapTexture)
@@ -66,7 +66,7 @@ func main() {
 	defer gl.DeleteProgram(cubemapShader)
 
 	// ------------------------- Compute and set static uniforms
-	app.projection = mgl32.Perspective(app.cam.Fovy, app.cam.Aspect, app.cam.Near, app.cam.Far)
+	app.projection = mgl32.Perspective(app.camera.Fovy, app.camera.Aspect, app.camera.Near, app.camera.Far)
 
 	// Load Obj file
 	app.nutVAO = utils.SetupModel("cube.obj", lighting, &app.projection[0], &app.world)
@@ -78,7 +78,6 @@ func main() {
 	gl.Uniform1i(app.nutVAO.UniLocs["uTex"], 0)
 	gl.Uniform3fv(app.nutVAO.UniLocs["uLightPos"], 1, &lightPos[0])
 	gl.Uniform3fv(app.nutVAO.UniLocs["uLightColor"], 1, &lightColor[0])
-	//sphereVAO := utils.SetupModel("sphere.obj", lighting, &projection[0], world)
 
 	skyboxVAO, uViewCubemapLocation := setupSkybox(cubemapShader, &app.projection[0])
 
@@ -86,7 +85,7 @@ func main() {
 	for !app.window.ShouldClose() {
 
 		// View is used in multiple programs
-		view := mgl32.LookAtV(app.cam.Position, app.cam.Position.Add(app.cam.Forward), app.cam.Up)
+		view := app.camera.LookAt()
 
 		// ----------------Draw the skybox (36 verts)
 		gl.UseProgram(cubemapShader)
@@ -115,7 +114,7 @@ func main() {
 		// Load program and set uniforms
 		gl.UseProgram(lighting)
 		gl.UniformMatrix4fv(app.nutVAO.UniLocs["uView"], 1, false, &view[0])
-		gl.Uniform3fv(app.nutVAO.UniLocs["uViewPos"], 1, &app.cam.Position[0])
+		gl.Uniform3fv(app.nutVAO.UniLocs["uViewPos"], 1, &app.camera.Position[0])
 
 		// Bind VAO and VBO
 		gl.BindVertexArray(app.nutVAO.Vao)
